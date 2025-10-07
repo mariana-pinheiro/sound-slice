@@ -318,6 +318,7 @@ const getUserPayments = async (req, res) => {
 const getUserReuses = async (req, res) => {
   try {
     const userId = req.user.id;
+
     const myReuses = await Track.find({
       user: userId,
       type: "reuse"
@@ -332,34 +333,25 @@ const getUserReuses = async (req, res) => {
       })
       .lean();
 
-    const reusedByOthers = await Track.find({
-      type: "reuse",
-      "reusedFrom.user": userId
-    })
-      .populate("user", "firstname lastname")
-      .populate({
-        path: "reusedFrom",
-        populate: {
-          path: "user",
-          model: "User",
-          select: "firstname lastname"
-        }
-      })
-      .lean();
+    const myOriginals = await Track.find({
+      user: userId,
+      $or: [{ type: "original" }, { type: { $exists: false } }],
+      totalReuses: { $gt: 0 }
+    }).select("title totalReuses");
 
     const response = {
-      reusedByOthers: reusedByOthers.map(r => ({
-        title: r.reusedFrom?.title || "Desconhecida",
-        reuserName: r.user ? `${r.user.firstname} ${r.user.lastname}` : "Desconhecido",
-        percent: r.reusePercentage || 0
+      reusedByOthers: myOriginals.map(t => ({
+        title: t.title,
+        totalReuses: t.totalReuses || 0
       })),
+
       myReuses: myReuses.map(r => ({
         title: r.title,
         originalTitle: r.reusedFrom?.title || "Desconhecida",
         ownerName: r.reusedFrom?.user
           ? `${r.reusedFrom.user.firstname} ${r.reusedFrom.user.lastname}`
           : "Desconhecido",
-        percent: r.reusePercentage || 0
+        percent: r.reusePercentage || r.metadata?.imaf?.percent || 0
       }))
     };
 

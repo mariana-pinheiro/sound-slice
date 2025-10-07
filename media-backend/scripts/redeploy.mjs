@@ -1,7 +1,7 @@
 // scripts/redeployContracts.js
 import mongoose from "mongoose";
 import { ethers } from "ethers";
-import Track from "../models/track.js";
+import Track from "../models/Track";
 import dotenv from "dotenv";
 import path from "path";
 

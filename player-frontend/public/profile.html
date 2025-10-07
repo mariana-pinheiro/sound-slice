@@ -237,7 +237,7 @@
                 const res = await fetch("http://localhost:3000/api/users/payments", {
                     headers: { Authorization: "Bearer " + token },
                 });
-                if (!res.ok) return console.warn("⚠️ Falha ao obter pagamentos");
+                if (!res.ok) return console.warn(" Falha ao obter pagamentos");
                 const payments = await res.json();
 
                 const table = document.getElementById("paymentsTable");
@@ -275,11 +275,10 @@
 
                 if (data.reusedByOthers?.length) {
                     myReuses.innerHTML = data.reusedByOthers.map(r => `
-                <li>
-                    "${r.title}" reutilizada por <strong>${r.reuserName || "Outro utilizador"}</strong> —
-                    ${r.percent || 0}% do original
-                </li>
-            `).join("");
+    <li>
+      "${r.title}" — <strong>${r.totalReuses}</strong> reutilização${r.totalReuses === 1 ? '' : 's'}
+    </li>
+  `).join("");
                 } else {
                     myReuses.innerHTML = `<li class="text-gray-400">Nenhuma reutilização das tuas músicas.</li>`;
                 }
