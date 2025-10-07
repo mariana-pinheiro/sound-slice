@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SoundSlice — Editor de Mix</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .bg-custom-dark {
+            background-color: #091a2b;
+        }
+
+        .text-custom-blue {
+            color: #00a2fd;
+        }
+
+        .hover\:text-custom-blue:hover {
+            color: #00a2fd;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 font-sans min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="bg-custom-dark text-white flex items-center justify-between px-8 py-4 shadow-md">
+        <a href="index.html" class="flex items-center space-x-2 text-2xl font-bold cursor-pointer">
+            <img src="images/icon.png" alt="Logo SoundSlice" class="h-8 w-auto">
+            <span>SoundSlice</span>
+        </a>
+        <nav class="flex items-center space-x-6 text-white text-lg">
+            <a href="musicas-outros.html" class="hover:text-[#00a2fd] transition">Músicas de Outros Criadores</a>
+            <a href="minhas-musicas.html" class="hover:text-[#00a2fd] transition">Minhas Músicas</a>
+            <a id="auth-link" href="login.html" class="hover:text-[#00a2fd] transition">Login/Registe-se</a>
+            <!-- Quando user está autenticado -->
+            <div class="relative hidden" id="userMenuWrapper">
+                <button id="userMenuBtn" class="flex items-center space-x-2 focus:outline-none">
+                    <img id="profilePic" src="images/default-avatar.png" alt="Avatar"
+                        class="h-8 w-8 rounded-full border border-gray-300">
+                    <span id="welcomeName"></span>
+                </button>
+
+                <!-- Dropdown -->
+                <div id="userDropdown" class="absolute right-0 mt-2 w-48 bg-white text-black rounded shadow-lg hidden">
+                    <a href="profile.html" class="block px-4 py-2 hover:bg-gray-100">O meu perfil</a>
+                    <button id="logoutBtn" class="w-full text-left px-4 py-2 hover:bg-gray-100">Logout</button>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main -->
+    <main class="flex-grow max-w-4xl mx-auto p-6 sm:p-8 w-full">
+        <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 mb-6">Editor de Mix</h1>
+
+        <!-- Lista de snippets adicionados -->
+        <section id="snippets" class="bg-white rounded-lg shadow p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4">Músicas adicionadas</h2>
+            <div id="snippet-list" class="space-y-3">
+                <p class="text-slate-500" id="empty-message">Ainda não adicionaste nenhum trecho.</p>
+            </div>
+            <div class="mt-4">
+                <button id="addSnippetBtn" class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
+                    ➕ Adicionar Música
+                </button>
+                <button id="addMySnippetBtn" class="px-4 py-2 bg-emerald-600 text-white rounded hover:bg-emerald-700">
+                    🎶 Adicionar das Minhas Músicas
+                </button>
+            </div>
+        </section>
+
+        <!-- Player final -->
+        <section class="bg-white rounded-lg shadow p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4">Preview do Mix</h2>
+            <audio id="mixPlayer" controls controlsList="nodownload noplaybackrate" class="w-full"></audio>
+            <div class="mt-4">
+                <label for="mixTitle" class="block text-sm font-medium text-slate-700 mb-1">
+                    Nome do Mix
+                </label>
+                <input id="mixTitle" type="text" placeholder="Ex: Summer Vibes"
+                    class="w-full rounded border border-gray-300 px-3 py-2 mb-3" />
+            </div>
+            <button id="exportMix" class="mt-4 px-4 py-2 bg-emerald-600 text-white rounded hover:bg-emerald-700 hidden">
+                Exportar Mix
+            </button>
+        </section>
+
+        <div id="status" class="text-sm text-slate-600"></div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-custom-dark text-white py-6 mt-auto">
+        <div class="max-w-6xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center">
+            <p class="text-sm">&copy; <span id="year"></span> SoundSlice. Todos os direitos reservados.</p>
+            <div class="flex space-x-4 mt-4 md:mt-0">
+                <a href="sobre.html" class="hover:text-custom-blue">Sobre</a>
+                <a href="contactos.html" class="hover:text-custom-blue">Contactos</a>
+                <a href="polpriv.html" class="hover:text-custom-blue">Política de Privacidade</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+
+    <script type="module">
+        const API = "http://localhost:3000";
+
+        // -------- Sessão --------
+        async function loadUser() {
+            const token = localStorage.getItem("authToken");
+            if (!token) {
+                document.getElementById("auth-link").style.display = "inline-block";
+                document.getElementById("userMenuWrapper").classList.add("hidden");
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API}/api/users/me`, {
+                    headers: { Authorization: "Bearer " + token }
+                });
+
+                if (res.ok) {
+                    const user = await res.json();
+
+                    document.getElementById("welcomeName").textContent =
+                        "Olá " + (user.firstname || "Utilizador");
+
+                    const picEl = document.getElementById("profilePic");
+                    picEl.src = user.profilePic || "images/default-avatar.png";
+
+                    document.getElementById("auth-link").style.display = "none";
+                    document.getElementById("userMenuWrapper").classList.remove("hidden");
+                } else {
+                    document.getElementById("auth-link").style.display = "inline-block";
+                    document.getElementById("userMenuWrapper").classList.add("hidden");
+                }
+            } catch (err) {
+                console.error("Erro a carregar user:", err);
+            }
+        }
+
+
+        // Toggle dropdown
+        document.addEventListener("click", (e) => {
+            const menu = document.getElementById("userDropdown");
+            const btn = document.getElementById("userMenuBtn");
+
+            if (btn && btn.contains(e.target)) {
+                menu.classList.toggle("hidden");
+            } else {
+                menu.classList.add("hidden");
+            }
+        });
+
+        // Logout
+        document.getElementById("logoutBtn")?.addEventListener("click", () => {
+            localStorage.removeItem("authToken");
+            localStorage.removeItem("nameCache");
+            window.location.href = "login.html";
+        });
+
+        loadUser();
+
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        let snippets = [];
+        const listEl = document.getElementById("snippet-list");
+        const emptyMsg = document.getElementById("empty-message");
+        const exportBtn = document.getElementById("exportMix");
+        const statusEl = document.getElementById("status");
+        let finalMixBlob = null;
+
+        document.getElementById("addSnippetBtn").addEventListener("click", () => {
+            localStorage.setItem("fromEditor", "true");
+            window.location.href = "musicas-outros.html?from=editor";
+        });
+
+        document.getElementById("addMySnippetBtn").addEventListener("click", () => {
+            localStorage.setItem("fromEditor", "true");
+            window.location.href = "minhas-musicas-mix.html?from=editor";
+        });
+
+        function loadSnippets() {
+            snippets = JSON.parse(localStorage.getItem("snippets") || "[]");
+            renderSnippets();
+        }
+
+        function renderSnippets() {
+            listEl.innerHTML = "";
+            if (snippets.length === 0) {
+                emptyMsg.style.display = "block";
+                exportBtn.classList.add("hidden");
+                return;
+            }
+            emptyMsg.style.display = "none";
+            exportBtn.classList.remove("hidden");
+
+            snippets.forEach((s, idx) => {
+                const el = document.createElement("div");
+                el.className = "p-3 border rounded flex items-center justify-between";
+                el.dataset.idx = idx;
+                el.innerHTML = `
+                    <div>
+                        <p class="font-semibold">${s.title || "Trecho " + (idx + 1)}</p>
+                        <p class="text-sm text-slate-500">${s.start.toFixed(1)}s → ${s.end.toFixed(1)}s</p>
+                    </div>
+                    <button data-idx="${idx}" class="text-red-600 hover:underline">Remover</button>
+                `;
+                listEl.appendChild(el);
+            });
+
+            listEl.querySelectorAll("button").forEach(btn => {
+                btn.addEventListener("click", () => {
+                    const i = btn.dataset.idx;
+                    snippets.splice(i, 1);
+                    localStorage.setItem("snippets", JSON.stringify(snippets));
+                    renderSnippets();
+                });
+            });
+            buildMixAudio();
+        }
+
+        new Sortable(document.getElementById("snippet-list"), {
+            animation: 150,
+            onEnd: () => {
+                const newOrder = [];
+                document.querySelectorAll("#snippet-list > div").forEach(el => {
+                    const idx = el.dataset.idx;
+                    newOrder.push(snippets[idx]);
+                });
+                snippets = newOrder;
+                localStorage.setItem("snippets", JSON.stringify(snippets));
+                buildMixAudio();
+            }
+        });
+
+        async function buildMixAudio() {
+            if (snippets.length === 0) return;
+
+            const audioCtx = new AudioContext();
+            let buffers = [];
+
+            for (let s of snippets) {
+                const token = localStorage.getItem("authToken");
+                const headers = {};
+
+                if (s.url.includes("/file") && !s.url.includes("/file/public") && token) {
+                    headers["Authorization"] = "Bearer " + token;
+                }
+
+                const res = await fetch(s.url, { headers });
+                if (!res.ok) {
+                    console.error(`Erro ao carregar áudio: ${s.title} (${res.status})`);
+                    continue;
+                }
+
+                const arrayBuffer = await res.arrayBuffer();
+
+                try {
+                    const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+                    buffers.push(audioBuffer);
+                } catch (err) {
+                    console.error("Erro ao decodificar áudio:", s.title, err);
+                }
+            }
+
+            if (buffers.length === 0) return;
+
+            const totalDuration = buffers.reduce((sum, b) => sum + b.duration, 0);
+            const output = audioCtx.createBuffer(2, audioCtx.sampleRate * totalDuration, audioCtx.sampleRate);
+
+            let offset = 0;
+            buffers.forEach(buf => {
+                for (let channel = 0; channel < buf.numberOfChannels; channel++) {
+                    output.getChannelData(channel).set(buf.getChannelData(channel), offset * audioCtx.sampleRate);
+                }
+                offset += buf.duration;
+            });
+
+            const wavBlob = bufferToWave(output, output.length);
+            finalMixBlob = wavBlob;
+            document.getElementById("mixPlayer").src = URL.createObjectURL(wavBlob);
+        }
+
+        function bufferToWave(abuffer, len) {
+            const numOfChan = abuffer.numberOfChannels,
+                length = len * numOfChan * 2 + 44,
+                buffer = new ArrayBuffer(length),
+                view = new DataView(buffer),
+                channels = [],
+                sampleRate = abuffer.sampleRate;
+            let offset = 0;
+            let pos = 0;
+
+            writeUint32(0x46464952);
+            writeUint32(length - 8);
+            writeUint32(0x45564157);
+
+            writeUint32(0x20746d66);
+            writeUint32(16);
+            writeUint16(1);
+            writeUint16(numOfChan);
+            writeUint32(sampleRate);
+            writeUint32(sampleRate * 2 * numOfChan);
+            writeUint16(numOfChan * 2);
+            writeUint16(16);
+
+            writeUint32(0x61746164);
+            writeUint32(length - pos - 4);
+
+            for (let i = 0; i < abuffer.numberOfChannels; i++)
+                channels.push(abuffer.getChannelData(i));
+
+            while (pos < length) {
+                for (let i = 0; i < numOfChan; i++) {
+                    let sample = Math.max(-1, Math.min(1, channels[i][offset]));
+                    view.setInt16(pos, sample < 0 ? sample * 0x8000 : sample * 0x7fff, true);
+                    pos += 2;
+                }
+                offset++;
+            }
+
+            return new Blob([buffer], { type: "audio/wav" });
+
+            function writeUint16(data) { view.setUint16(pos, data, true); pos += 2; }
+            function writeUint32(data) { view.setUint32(pos, data, true); pos += 4; }
+        }
+
+        exportBtn.addEventListener("click", async () => {
+            try {
+                statusEl.textContent = "⏳ A gerar mix...";
+
+                const token = localStorage.getItem("authToken");
+                const mixName = document.getElementById("mixTitle").value;
+
+                const formData = new FormData();
+                formData.append("file", finalMixBlob, "mix.wav");
+                formData.append("title", mixName);
+                formData.append(
+                    "snippets",
+                    JSON.stringify(
+                        snippets.map(s => ({
+                            id: s.id,
+                            title: s.title,
+                            artist: s.artist || "Desconhecido",
+                            creatorName: s.creatorName || "N/A",
+                            creatorWallet: s.creatorWallet || "0x0000000000000000000000000000000000000000",
+                            start: parseFloat(s.start) || 0,
+                            end: parseFloat(s.end) || 0,
+                            percent: parseFloat(s.percent) || 0,
+                            snippetId: s.snippetId || "",
+                            url: s.url || "",
+                        }))
+                    )
+                );
+
+                const res = await fetch(`${API}/api/mix/export`, {
+                    method: "POST",
+                    headers: { Authorization: "Bearer " + token },
+                    body: formData
+                });
+
+                if (!res.ok) throw new Error("Erro no backend");
+                const data = await res.json();
+
+                statusEl.textContent = "✅ Mix criado com sucesso! A redirecionar ...";
+                document.getElementById("mixPlayer").src = `${API}/api/tracks/${data.trackId}/file`;
+
+                localStorage.removeItem("snippets");
+
+                setTimeout(() => {
+                    window.location.href = "minhas-musicas.html";
+                }, 1800);
+            } catch (err) {
+                statusEl.textContent = "❌ " + err.message;
+            }
+        });
+
+        loadSnippets();
+        buildMixAudio();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SoundSlice - Página Inicial</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .bg-custom-dark {
+      background-color: #091a2b;
+    }
+
+    .text-custom-blue {
+      color: #00a2fd;
+    }
+
+    .hover\:text-custom-blue:hover {
+      color: #00a2fd;
+    }
+
+    .bg-custom-blue {
+      background-color: #00a2fd;
+    }
+
+    .hover\:bg-custom-blue:hover {
+      background-color: #0090e0;
+    }
+
+    @keyframes fadein {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+
+<body class="bg-gray-50 font-sans min-h-screen flex flex-col">
+  <!-- HEADER -->
+  <header class="bg-custom-dark text-white flex items-center justify-between px-8 py-4 shadow-md">
+    <a href="index.html" class="flex items-center space-x-2 text-2xl font-bold cursor-pointer">
+      <img src="images/icon.png" alt="Logo SoundSlice" class="h-8 w-auto">
+      <span>SoundSlice</span>
+    </a>
+
+    <nav class="flex items-center space-x-6 text-white text-lg">
+      <a href="musicas-outros.html" class="hover:text-[#00a2fd] transition">
+        Músicas de Outros Criadores
+      </a>
+      <a href="minhas-musicas.html" class="hover:text-[#00a2fd] transition">
+        Minhas Músicas
+      </a>
+
+      <!-- Quando user não está autenticado -->
+      <a id="auth-link" href="login.html" class="hover:text-[#00a2fd] transition">
+        Login/Registe-se
+      </a>
+
+      <!-- Quando user está autenticado -->
+      <div class="relative hidden" id="userMenuWrapper">
+        <button id="userMenuBtn" class="flex items-center space-x-2 focus:outline-none">
+          <img id="profilePic" src="images/default-avatar.png" alt="Avatar"
+            class="h-8 w-8 rounded-full border border-gray-300">
+          <span id="welcomeName"></span>
+        </button>
+
+        <!-- Dropdown -->
+        <div id="userDropdown" class="absolute right-0 mt-2 w-48 bg-white text-black rounded shadow-lg hidden">
+          <a href="profile.html" class="block px-4 py-2 hover:bg-gray-100">O meu perfil</a>
+          <button id="logoutBtn" class="w-full text-left px-4 py-2 hover:bg-gray-100">Logout</button>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+
+  <!-- MAIN -->
+  <main class="flex-grow max-w-6xl mx-auto p-6 sm:p-8 w-full">
+
+    <!-- Hero -->
+    <section class="mb-8 sm:mb-10">
+      <div class="bg-white shadow-lg rounded-lg p-6 sm:p-8">
+        <h1 id="welcomeTitle" class="text-3xl sm:text-4xl font-extrabold text-slate-900">
+          Bem-vindo à SoundSlice!
+        </h1>
+        <p class="text-slate-600 mt-3">
+          A SoundSlice é a plataforma onde criadores e ouvintes se encontram:
+          partilha as tuas músicas originais, reutiliza faixas de outros artistas de forma
+          justa e transparente e garante que os direitos de autor são sempre respeitados
+          através de <em>smart contracts</em>.
+        </p>
+        <p class="text-slate-600 mt-2">
+          Explora novas músicas, faz remixes, colabora com outros criadores e recebe
+          automaticamente pela tua obra sempre que for reutilizada.
+        </p>
+      </div>
+    </section>
+
+    <!-- Banner -->
+    <section class="mb-10">
+      <div class="rounded-xl overflow-hidden shadow-lg relative">
+        <img src="images/banner1.jpg"
+          onerror="this.src='https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=1600&auto=format&fit=crop'"
+          alt="Banner de destaques musicais" class="w-full h-56 sm:h-72 object-cover">
+        <div class="absolute inset-0 bg-black/40"></div>
+        <div class="absolute inset-0 flex items-center">
+          <div class="px-6 sm:px-10">
+            <h2 class="text-white text-2xl sm:text-3xl font-bold">Descobre novas faixas e criadores</h2>
+            <p class="text-white/90 mt-2 max-w-xl">Explora remixes, colaborações e reutilizações mais populares.</p>
+            <a href="musicas-outros.html"
+              class="inline-block mt-4 bg-white text-slate-900 font-semibold px-5 py-2 rounded-lg hover:bg-gray-100 transition">
+              Ouvir agora
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Últimas músicas -->
+    <section class="mb-12">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-2xl font-semibold text-slate-900">Últimas músicas publicadas</h3>
+        <a href="musicas-outros.html" class="text-custom-blue hover:underline text-sm">Ver todas</a>
+      </div>
+      <div id="latestGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
+    </section>
+
+    <!-- CTA criadores -->
+    <section class="mb-16">
+      <div
+        class="bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-xl p-8 sm:p-10 shadow-md text-center">
+        <h3 class="text-2xl sm:text-3xl font-bold">És criador musical?</h3>
+        <p class="mt-2 text-white/90">Partilha as tuas músicas e recebe pelos teus direitos autorais.</p>
+        <a href="register.html"
+          class="inline-block mt-5 bg-white text-indigo-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition">
+          Torna-te um criador
+        </a>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="bg-custom-dark text-white py-6 mt-auto">
+    <div class="max-w-6xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center">
+      <p class="text-sm">&copy; <span id="year"></span> SoundSlice. Todos os direitos reservados.</p>
+      <div class="flex space-x-4 mt-4 md:mt-0">
+        <a href="sobre.html" class="hover:text-custom-blue">Sobre</a>
+        <a href="contactos.html" class="hover:text-custom-blue">Contactos</a>
+        <a href="polpriv.html" class="hover:text-custom-blue">Política de Privacidade</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const API = 'http://localhost:3000';
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // -------- Últimas músicas --------
+    async function fetchLatestMusic() {
+      try {
+        const res = await fetch(`${API}/api/tracks/feed?sort=recent`);
+        if (!res.ok) throw new Error('Erro ao carregar músicas');
+        const musics = await res.json();
+        renderLatest(musics.slice(0, 4));
+      } catch (err) {
+        console.error(err);
+        document.getElementById('latestGrid').innerHTML =
+          `<p class="text-slate-500 col-span-full">Não foi possível carregar as últimas músicas.</p>`;
+      }
+    }
+
+    function renderLatest(musics) {
+      const grid = document.getElementById('latestGrid');
+      grid.innerHTML = '';
+      musics.forEach((m, i) => {
+        const card = document.createElement('a');
+        card.href = `reuse.html?id=${m._id}`;
+        card.className =
+          'bg-white rounded-lg overflow-hidden shadow hover:shadow-xl transition duration-200 animate-[fadein_.25s_ease-out]';
+        card.style.animationDelay = `${i * 60}ms`;
+        card.innerHTML = `
+      <div class="h-40 w-full overflow-hidden">
+        <img src="${m.coverId ? `${API}/api/tracks/${m._id}/cover` : 'images/placeholder.png'}"
+             alt="Capa da música ${m.title}"
+             class="h-40 w-full object-cover hover:scale-105 transition duration-300">
+      </div>
+      <div class="p-4">
+        <h4 class="font-semibold text-slate-900">${m.title}</h4>
+        <p class="text-sm text-slate-500">por ${m.artist}</p>
+      </div>
+    `;
+        grid.appendChild(card);
+      });
+    }
+
+    async function loadUser() {
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        document.getElementById("auth-link").style.display = "inline-block";
+        document.getElementById("userMenuWrapper").classList.add("hidden");
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API}/api/users/me`, {
+          headers: { Authorization: "Bearer " + token }
+        });
+
+        if (res.ok) {
+          const user = await res.json();
+
+          document.getElementById("welcomeName").textContent =
+            "Olá " + (user.firstname || "Utilizador");
+
+          const picEl = document.getElementById("profilePic");
+          picEl.src = user.profilePic || "images/default-avatar.png";
+
+          document.getElementById("auth-link").style.display = "none";
+          document.getElementById("userMenuWrapper").classList.remove("hidden");
+        } else {
+          document.getElementById("auth-link").style.display = "inline-block";
+          document.getElementById("userMenuWrapper").classList.add("hidden");
+        }
+      } catch (err) {
+        console.error("Erro a carregar user:", err);
+      }
+    }
+
+    // Toggle dropdown
+    document.addEventListener("click", (e) => {
+      const menu = document.getElementById("userDropdown");
+      const btn = document.getElementById("userMenuBtn");
+
+      if (btn && btn.contains(e.target)) {
+        menu.classList.toggle("hidden");
+      } else {
+        menu.classList.add("hidden");
+      }
+    });
+
+    // Logout
+    document.getElementById("logoutBtn")?.addEventListener("click", () => {
+      localStorage.removeItem("authToken");
+      localStorage.removeItem("nameCache");
+      window.location.href = "login.html";
+    });
+
+
+    loadUser();
+    fetchLatestMusic();
+  </script>
+</body>
+</html>

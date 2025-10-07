@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SoundSlice — Editar Música</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .bg-custom-dark {
+            background-color: #091a2b;
+        }
+
+        .text-custom-blue {
+            color: #00a2fd;
+        }
+
+        .hover\:text-custom-blue:hover {
+            color: #00a2fd;
+        }
+
+        .bg-custom-blue {
+            background-color: #00a2fd;
+        }
+
+        .hover\:bg-custom-blue:hover {
+            background-color: #0090e0;
+        }
+
+        /* micro animação usada nos cards */
+        @keyframes fadein {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 font-sans min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="bg-custom-dark text-white flex items-center justify-between px-8 py-4 shadow-md">
+        <a href="index.html" class="flex items-center space-x-2 text-2xl font-bold cursor-pointer">
+            <img src="images/icon.png" alt="Logo SoundSlice" class="h-8 w-auto">
+            <span>SoundSlice</span>
+        </a>
+
+        <nav class="flex items-center space-x-6 text-white text-lg">
+            <a href="musicas-outros.html" class="hover:text-[#00a2fd] transition ">
+                Músicas de Outros Criadores
+            </a>
+            <a href="minhas-musicas.html" class="hover:text-[#00a2fd] transition underline">
+                Minhas Músicas
+            </a>
+
+            <!-- Quando user não está autenticado -->
+            <a id="auth-link" href="login.html" class="hover:text-[#00a2fd] transition">
+                Login/Registe-se
+            </a>
+
+            <!-- Quando user está autenticado -->
+            <div class="relative hidden" id="userMenuWrapper">
+                <button id="userMenuBtn" class="flex items-center space-x-2 focus:outline-none">
+                    <img id="profilePic" src="images/default-avatar.png" alt="Avatar"
+                        class="h-8 w-8 rounded-full border border-gray-300">
+                    <span id="welcomeName"></span>
+                </button>
+
+                <!-- Dropdown -->
+                <div id="userDropdown" class="absolute right-0 mt-2 w-48 bg-white text-black rounded shadow-lg hidden">
+                    <a href="profile.html" class="block px-4 py-2 hover:bg-gray-100">O meu perfil</a>
+                    <button id="logoutBtn" class="w-full text-left px-4 py-2 hover:bg-gray-100">Logout</button>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="flex-grow max-w-2xl mx-auto p-6 w-full">
+        <h1 class="text-2xl font-bold text-slate-900 mb-6">Editar Música</h1>
+
+        <form id="editForm" class="space-y-6 bg-white p-6 rounded-lg shadow">
+            <!--  Player áudio -->
+            <div>
+                <label class="block font-medium mb-1">Pré-visualização</label>
+                <audio id="audioPlayer" controls class="w-full"></audio>
+            </div>
+
+            <div>
+                <label class="block font-medium mb-1">Título</label>
+                <input type="text" id="title" required class="w-full rounded-md border px-3 py-2">
+            </div>
+
+            <div>
+                <label class="block font-medium mb-1">Artista</label>
+                <input type="text" id="artist" required class="w-full rounded-md border px-3 py-2">
+            </div>
+
+            <div>
+                <label class="block font-medium mb-1">Visibilidade</label>
+                <select id="visibility" class="w-full rounded-md border px-3 py-2">
+                    <option value="public">Pública</option>
+                    <option value="private">Privada</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block font-medium mb-1">Imagem de capa</label>
+                <input type="file" id="cover" accept="image/*" class="w-full">
+                <img id="coverPreview" class="mt-3 max-h-40 rounded shadow hidden" />
+            </div>
+
+            <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition">
+             Guardar alterações
+            </button>
+        </form>
+    </main>
+    <div id="toast-root" class="fixed bottom-4 right-4 flex flex-col gap-2 z-50"></div>
+
+    <footer class="bg-custom-dark text-white py-6 mt-auto">
+        <div class="max-w-6xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center">
+            <p class="text-sm">&copy; <span id="year"></span> SoundSlice. Todos os direitos reservados.</p>
+            <div class="flex space-x-4 mt-4 md:mt-0">
+                <a href="sobre.html" class="hover:text-custom-blue">Sobre</a>
+                <a href="contactos.html" class="hover:text-custom-blue">Contactos</a>
+                <a href="polpriv.html" class="hover:text-custom-blue">Política de Privacidade</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const API = 'http://localhost:3000';
+        const trackId = new URLSearchParams(location.search).get('id');
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        // -------- Sessão --------
+        async function loadUser() {
+            const token = localStorage.getItem("authToken");
+            if (!token) {
+                document.getElementById("auth-link").style.display = "inline-block";
+                document.getElementById("userMenuWrapper").classList.add("hidden");
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API}/api/users/me`, {
+                    headers: { Authorization: "Bearer " + token }
+                });
+
+                if (res.ok) {
+                    const user = await res.json();
+
+                    document.getElementById("welcomeName").textContent =
+                        "Olá " + (user.firstname || "Utilizador");
+
+                    const picEl = document.getElementById("profilePic");
+                    picEl.src = user.profilePic || "images/default-avatar.png";
+
+                    document.getElementById("auth-link").style.display = "none";
+                    document.getElementById("userMenuWrapper").classList.remove("hidden");
+                } else {
+                    document.getElementById("auth-link").style.display = "inline-block";
+                    document.getElementById("userMenuWrapper").classList.add("hidden");
+                }
+            } catch (err) {
+                console.error("Erro a carregar user:", err);
+            }
+        }
+
+
+        // Toggle dropdown
+        document.addEventListener("click", (e) => {
+            const menu = document.getElementById("userDropdown");
+            const btn = document.getElementById("userMenuBtn");
+
+            if (btn && btn.contains(e.target)) {
+                menu.classList.toggle("hidden");
+            } else {
+                menu.classList.add("hidden");
+            }
+        });
+
+        // Logout
+        document.getElementById("logoutBtn")?.addEventListener("click", () => {
+            localStorage.removeItem("authToken");
+            localStorage.removeItem("nameCache");
+            window.location.href = "login.html";
+        });
+
+        loadUser();
+
+        async function loadTrack() {
+            const token = localStorage.getItem("authToken");
+            if (!token) {
+                location.href = "login.html";
+                return;
+            }
+            const r = await fetch(`${API}/api/tracks/mine`, {
+                headers: { Authorization: "Bearer " + token }
+            });
+            if (!r.ok) {
+                alert("Erro ao carregar as músicas");
+                location.href = "minhas-musicas.html";
+                return;
+            }
+            const tracks = await r.json();
+            const track = tracks.find(t => t._id === trackId);
+            if (!track) { alert('Música não encontrada'); location.href = 'minhas-musicas.html'; return; }
+
+            document.getElementById('title').value = track.title;
+            document.getElementById('artist').value = track.artist;
+            document.getElementById('visibility').value = track.visibility;
+            document.getElementById('audioPlayer').src = `${API}/api/tracks/${track._id}/file`;
+
+            if (track.coverId) {
+                document.getElementById('coverPreview').src = `${API}/api/tracks/${track._id}/cover`;
+                document.getElementById('coverPreview').classList.remove('hidden');
+            }
+        }
+
+        loadTrack();
+
+        document.getElementById('cover').addEventListener('change', e => {
+            const file = e.target.files[0];
+            if (file) {
+                const url = URL.createObjectURL(file);
+                document.getElementById('coverPreview').src = url;
+                document.getElementById('coverPreview').classList.remove('hidden');
+            }
+        });
+
+        document.getElementById('editForm').addEventListener('submit', async e => {
+            const token = localStorage.getItem("authToken");
+            e.preventDefault();
+            const formData = new FormData();
+            formData.append('title', document.getElementById('title').value);
+            formData.append('artist', document.getElementById('artist').value);
+            formData.append('visibility', document.getElementById('visibility').value);
+
+            const coverFile = document.getElementById('cover').files[0];
+            if (coverFile) formData.append('cover', coverFile);
+
+            const res = await fetch(`${API}/api/tracks/${trackId}`, {
+                method: "PUT",
+                body: formData,
+                headers: { Authorization: "Bearer " + token }
+            });
+
+            if (res.ok) {
+                notify("Música atualizada com sucesso!");
+                location.href = "minhas-musicas.html";
+            } else {
+                const data = await res.json().catch(() => ({}));
+                alert(data.error || "Erro ao atualizar música");
+            }
+
+
+        });
+
+        function notify(message, type = 'info', timeout = 3000) {
+            const root = document.getElementById('toast-root');
+            const el = document.createElement('div');
+            el.className = "pointer-events-auto w-[320px] rounded-lg shadow-lg border bg-white flex items-start gap-3 p-4 animate-[fadein_.2s_ease-out]";
+            const colors = { success: 'bg-green-100 text-green-800 border-green-200', error: 'bg-rose-100 text-rose-800 border-rose-200', info: 'bg-indigo-100 text-indigo-800 border-indigo-200' };
+            const badge = document.createElement('div'); badge.className = `shrink-0 h-6 w-6 rounded-full flex items-center justify-center ${colors[type]}`;
+            badge.innerHTML = { success: '✓', error: '!', info: 'i' }[type];
+            const text = document.createElement('div'); text.className = "text-sm text-slate-700"; text.textContent = message;
+            const close = document.createElement('button'); close.className = "ml-auto text-slate-400 hover:text-slate-600"; close.innerHTML = '&times;'; close.onclick = () => root.removeChild(el);
+            el.appendChild(badge); el.appendChild(text); el.appendChild(close); root.appendChild(el);
+            setTimeout(() => { if (el.parentNode) root.removeChild(el); }, timeout);
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Meu Perfil - SoundSlice</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .bg-custom-dark {
+            background-color: #091a2b;
+        }
+
+        .text-custom-blue {
+            color: #00a2fd;
+        }
+
+        .hover\:text-custom-blue:hover {
+            color: #00a2fd;
+        }
+
+        .bg-custom-blue {
+            background-color: #00a2fd;
+        }
+
+        .hover\:bg-custom-blue:hover {
+            background-color: #0090e0;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 font-sans min-h-screen flex flex-col">
+
+    <!-- HEADER -->
+    <header class="bg-custom-dark text-white flex items-center justify-between px-8 py-4 shadow-md">
+        <a href="index.html" class="flex items-center space-x-2 text-2xl font-bold cursor-pointer">
+            <img src="images/icon.png" alt="Logo SoundSlice" class="h-8 w-auto">
+            <span>SoundSlice</span>
+        </a>
+        <div class="flex items-center space-x-4">
+            <nav class="flex items-center space-x-6 text-white text-lg">
+                <a href="musicas-outros.html" class="hover:text-[#00a2fd] transition">Músicas de Outros Criadores</a>
+                <a href="minhas-musicas.html" class="hover:text-[#00a2fd] transition">Minhas Músicas</a>
+            </nav>
+    </header>
+
+    <div class="flex flex-1">
+        <aside id="sidebar"
+            class="fixed md:static inset-y-0 left-0 w-64 bg-custom-dark text-white transform -translate-x-full md:translate-x-0 transition-transform duration-200 ease-in-out z-40">
+            <div class="px-6 py-4 text-2xl font-bold border-b border-gray-700">Menu</div>
+            <nav class="flex-1 px-4 py-6 space-y-3">
+                <a href="#" data-section="perfil" class="block px-3 py-2 rounded hover:bg-gray-800"> Meu Perfil</a>
+                <a href="#" data-section="pagamentos" class="block px-3 py-2 rounded hover:bg-gray-800"> Meus
+                    Pagamentos</a>
+                <a href="#" data-section="reutilizacoes" class="block px-3 py-2 rounded hover:bg-gray-800">
+                    Reutilizações</a>
+            </nav>
+            <div class="px-6 py-4 border-t border-gray-700">
+                <button id="logoutBtn" class="w-full p-2 rounded bg-red-600 hover:bg-red-700"> Logout</button>
+            </div>
+        </aside>
+
+        <!-- CONTEÚDO -->
+        <main class="flex-1 p-8 overflow-y-auto">
+            <!-- PERFIL -->
+            <section id="perfil" class="section">
+                <h2 class="text-2xl font-bold mb-6 text-gray-800">Meu Perfil</h2>
+                <form id="profileForm" class="space-y-4 max-w-xl bg-white p-6 shadow rounded-lg">
+
+                    <!-- Foto -->
+                    <div class="flex flex-col items-center mb-4">
+                        <img id="profilePreview" src="images/default-avatar.png"
+                            class="w-28 h-28 rounded-full border mb-3 object-cover" alt="Foto de perfil">
+                        <input type="file" id="profilePic" accept="image/*" class="hidden">
+                        <button type="button" onclick="document.getElementById('profilePic').click()"
+                            class="px-3 py-2 bg-custom-blue text-white rounded hover:bg-[#0090e0]">Alterar Foto</button>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Primeiro Nome</label>
+                        <input type="text" id="firstname"
+                            class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-custom-blue">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Último Nome</label>
+                        <input type="text" id="lastname"
+                            class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-custom-blue">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Telefone</label>
+                        <input type="tel" id="phone"
+                            class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-custom-blue">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Endereço Ethereum</label>
+                        <div class="flex space-x-2">
+                            <input type="text" id="ethWallet"
+                                class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-custom-blue"
+                                disabled>
+                            <button type="button" id="editEthBtn"
+                                class="px-3 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600">Alterar</button>
+                            <button type="button" id="removeEthBtn"
+                                class="px-3 py-2 bg-red-500 text-white rounded hover:bg-red-600">Remover</button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">País</label>
+                            <input type="text" id="country" class="w-full border rounded px-3 py-2 bg-gray-100"
+                                disabled>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Cidade</label>
+                            <input type="text" id="city" class="w-full border rounded px-3 py-2 bg-gray-100" disabled>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">Guardar
+                        Alterações</button>
+                </form>
+            </section>
+
+            <section id="pagamentos" class="section hidden">
+                <h2 class="text-2xl font-bold mb-6 text-gray-800">Meus Pagamentos</h2>
+                <div class="bg-white shadow rounded-lg overflow-hidden">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="bg-gray-200 text-left">
+                                <th class="p-2">Data</th>
+                                <th class="p-2">Valor</th>
+                                <th class="p-2">Para/De</th>
+                                <th class="p-2">Música</th>
+                            </tr>
+                        </thead>
+                        <tbody id="paymentsTable"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="reutilizacoes" class="section hidden">
+                <h2 class="text-2xl font-bold mb-6 text-gray-800">Reutilizações</h2>
+                <div class="bg-white shadow rounded-lg p-6 space-y-4">
+                    <div>
+                        <h3 class="font-semibold text-gray-700">As minhas músicas reutilizadas</h3>
+                        <ul id="myReuses" class="list-disc pl-6 text-gray-600"></ul>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-gray-700">Músicas que reutilizei</h3>
+                        <ul id="usedByMe" class="list-disc pl-6 text-gray-600"></ul>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="bg-custom-dark text-white text-center py-4 mt-auto">
+        <p>&copy; 2025 SoundSlice. Todos os direitos reservados.</p>
+    </footer>
+
+    <script>
+        document.querySelectorAll("aside nav a").forEach(link => {
+            link.addEventListener("click", e => {
+                e.preventDefault();
+                document.querySelectorAll(".section").forEach(sec => sec.classList.add("hidden"));
+                document.getElementById(link.dataset.section).classList.remove("hidden");
+            });
+        });
+
+        // Editar Ethereum
+        document.getElementById("editEthBtn").addEventListener("click", () => {
+            const ethInput = document.getElementById("ethWallet");
+            ethInput.disabled = false;
+            ethInput.focus();
+        });
+
+        // Remover Ethereum
+        document.getElementById("removeEthBtn").addEventListener("click", () => {
+            const ethInput = document.getElementById("ethWallet");
+            ethInput.value = "";
+            ethInput.disabled = false;
+            ethInput.focus();
+        });
+
+        // Logout
+        document.getElementById("logoutBtn").addEventListener("click", () => {
+            localStorage.removeItem("authToken");
+            localStorage.removeItem("nameCache");
+            window.location.href = "login.html";
+        })
+
+        async function loadProfile() {
+            try {
+
+
+                const token = localStorage.getItem("authToken");
+                if (!token) {
+                    window.location.href = "login.html";
+                    return;
+                }
+                const res = await fetch("http://localhost:3000/api/users/me", {
+                    headers: { Authorization: "Bearer " + token }
+                });
+
+                if (!res.ok) {
+                    window.location.href = "login.html";
+                    return;
+                }
+
+                const data = await res.json();
+                console.log("🔎 Perfil recebido:", data);
+
+                document.getElementById("firstname").value = data.firstname || "";
+                document.getElementById("lastname").value = data.lastname || "";
+                document.getElementById("phone").value = data.phone || "";
+                document.getElementById("ethWallet").value = data.ethWallet || "";
+                document.getElementById("country").value = data.country || "";
+                document.getElementById("city").value = data.city || "";
+
+                if (data.profilePic) {
+                    document.getElementById("profilePreview").src = data.profilePic;
+                }
+            } catch (err) {
+                console.error("erro loadProfile:", err);
+                window.location.href = "login.html";
+            }
+            loadPayments();
+            loadReuses();
+
+        }
+
+        async function loadPayments() {
+            const token = localStorage.getItem("authToken");
+            if (!token) return;
+
+            try {
+                const res = await fetch("http://localhost:3000/api/users/payments", {
+                    headers: { Authorization: "Bearer " + token },
+                });
+                if (!res.ok) return console.warn("⚠️ Falha ao obter pagamentos");
+                const payments = await res.json();
+
+                const table = document.getElementById("paymentsTable");
+                if (!payments || payments.length === 0) {
+                    table.innerHTML = `<tr><td colspan="4" class="text-center text-gray-400 py-4">Sem pagamentos registados.</td></tr>`;
+                    return;
+                }
+
+                table.innerHTML = payments.map(p => `
+            <tr class="border-b hover:bg-gray-50">
+                <td class="p-2">${new Date(p.date).toLocaleDateString()}</td>
+                <td class="p-2">${p.valueEth || 0} ETH</td>
+                <td class="p-2">${p.direction === "in" ? "Recebido de " : "Pago a "}${p.counterparty || "Desconhecido"}</td>
+                <td class="p-2">${p.trackTitle || "—"}</td>
+            </tr>
+        `).join("");
+            } catch (err) {
+                console.error("Erro ao carregar pagamentos:", err);
+            }
+        }
+
+        async function loadReuses() {
+            const token = localStorage.getItem("authToken");
+            if (!token) return;
+
+            try {
+                const res = await fetch("http://localhost:3000/api/users/reuses", {
+                    headers: { Authorization: "Bearer " + token },
+                });
+                if (!res.ok) return console.warn("Falha ao obter reutilizações");
+                const data = await res.json();
+
+                const myReuses = document.getElementById("myReuses");
+                const usedByMe = document.getElementById("usedByMe");
+
+                if (data.reusedByOthers?.length) {
+                    myReuses.innerHTML = data.reusedByOthers.map(r => `
+                <li>
+                    "${r.title}" reutilizada por <strong>${r.reuserName || "Outro utilizador"}</strong> —
+                    ${r.percent || 0}% do original
+                </li>
+            `).join("");
+                } else {
+                    myReuses.innerHTML = `<li class="text-gray-400">Nenhuma reutilização das tuas músicas.</li>`;
+                }
+
+                if (data.myReuses?.length) {
+                    usedByMe.innerHTML = data.myReuses.map(r => `
+                <li>
+                    Reutilizaste "<strong>${r.title}</strong>" de ${r.ownerName || "Outro utilizador"} —
+                    ${r.percent || 0}% usado
+                </li>
+            `).join("");
+                } else {
+                    usedByMe.innerHTML = `<li class="text-gray-400">Ainda não reutilizaste nenhuma música.</li>`;
+                }
+            } catch (err) {
+                console.error("Erro ao carregar reutilizações:", err);
+            }
+        }
+
+        document.getElementById("profileForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData();
+            const token = localStorage.getItem("authToken"); // 👈 faltava isto
+            formData.append("firstname", document.getElementById("firstname").value);
+            formData.append("lastname", document.getElementById("lastname").value);
+            formData.append("phone", document.getElementById("phone").value);
+            formData.append("ethWallet", document.getElementById("ethWallet").value);
+            formData.append("country", document.getElementById("country").value);
+            formData.append("city", document.getElementById("city").value);
+
+            const fileInput = document.getElementById("profilePic");
+            if (fileInput.files.length > 0) {
+                formData.append("profilePic", fileInput.files[0]);
+            }
+
+            try {
+                const res = await fetch("http://localhost:3000/api/users/update", {
+                    method: "PUT",
+                    headers: { Authorization: "Bearer " + token },
+                    body: formData
+                });
+
+                const data = await res.json();
+                if (res.ok) {
+                    notify("✅ Perfil atualizado com sucesso!");
+                    loadProfile();
+                } else {
+                    notify((data.error || "Erro ao atualizar perfil"));
+                }
+            } catch (err) {
+                console.error("Erro no update:", err);
+            }
+        });
+
+        function notify(message, type = "info", timeout = 3000) {
+            const root = document.getElementById("toast-root") || (() => {
+                const div = document.createElement("div");
+                div.id = "toast-root";
+                div.className = "fixed z-50 bottom-6 right-6 space-y-3 pointer-events-none";
+                document.body.appendChild(div);
+                return div;
+            })();
+        }
+
+        loadProfile();
+    </script>
+</body>
+
+</html>

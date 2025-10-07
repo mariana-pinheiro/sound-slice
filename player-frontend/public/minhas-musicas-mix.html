@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SoundSlice — Escolher Música para Mix</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .bg-custom-dark {
+            background-color: #091a2b;
+        }
+
+        .text-custom-blue {
+            color: #00a2fd;
+        }
+
+        .hover\:text-custom-blue:hover {
+            color: #00a2fd;
+        }
+
+        .card {
+            animation: fadein .25s ease-out;
+        }
+
+        @keyframes fadein {
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 font-sans min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="bg-custom-dark text-white flex items-center justify-between px-8 py-4 shadow-md">
+        <a href="index.html" class="flex items-center space-x-2 text-2xl font-bold cursor-pointer">
+            <img src="images/icon.png" alt="Logo SoundSlice" class="h-8 w-auto">
+            <span>SoundSlice</span>
+        </a>
+
+        <nav class="flex items-center space-x-6 text-white text-lg">
+            <a href="musicas-outros.html" class="hover:text-[#00a2fd] transition">Músicas de Outros Criadores</a>
+            <a href="minhas-musicas.html" class="hover:text-[#00a2fd] transition">Minhas Músicas</a>
+            <a id="auth-link" href="login.html" class="hover:text-[#00a2fd] transition">Login/Registe-se</a>
+
+            <div class="relative hidden" id="userMenuWrapper">
+                <button id="userMenuBtn" class="flex items-center space-x-2 focus:outline-none">
+                    <img id="profilePic" src="images/default-avatar.png" alt="Avatar"
+                        class="h-8 w-8 rounded-full border border-gray-300">
+                    <span id="welcomeName"></span>
+                </button>
+
+                <div id="userDropdown" class="absolute right-0 mt-2 w-48 bg-white text-black rounded shadow-lg hidden">
+                    <a href="profile.html" class="block px-4 py-2 hover:bg-gray-100">O meu perfil</a>
+                    <button id="logoutBtn" class="w-full text-left px-4 py-2 hover:bg-gray-100">Logout</button>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main -->
+    <main class="flex-grow max-w-6xl mx-auto p-6 sm:p-8 w-full">
+        <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 mb-6">Escolher música (reuso) para Mix</h1>
+
+        <section>
+            <div id="grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+            <div id="empty" class="hidden text-center text-slate-500 py-10">
+                Ainda não tens músicas de reutilização.
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-custom-dark text-white py-6 mt-auto">
+        <div class="max-w-6xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center">
+            <p class="text-sm">&copy; <span id="year"></span> SoundSlice. Todos os direitos reservados.</p>
+            <div class="flex space-x-4 mt-4 md:mt-0">
+                <a href="sobre.html" class="hover:text-custom-blue">Sobre</a>
+                <a href="contactos.html" class="hover:text-custom-blue">Contactos</a>
+                <a href="polpriv.html" class="hover:text-custom-blue">Política de Privacidade</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const API = 'http://localhost:3000';
+        document.getElementById('year').textContent = new Date().getFullYear();
+        
+        async function loadUser() {
+            const token = localStorage.getItem("authToken");
+            if (!token) return;
+            try {
+                const res = await fetch(`${API}/api/users/me`, {
+                    headers: { Authorization: "Bearer " + token }
+                });
+                if (!res.ok) return;
+                const user = await res.json();
+                document.getElementById("welcomeName").textContent =
+                    "Olá " + (user.firstname || "Utilizador");
+                document.getElementById("auth-link").style.display = "none";
+                document.getElementById("userMenuWrapper").classList.remove("hidden");
+            } catch (err) { console.error(err); }
+        }
+
+        document.addEventListener("click", (e) => {
+            const menu = document.getElementById("userDropdown");
+            const btn = document.getElementById("userMenuBtn");
+            if (btn && btn.contains(e.target)) menu.classList.toggle("hidden");
+            else menu.classList.add("hidden");
+        });
+
+        document.getElementById("logoutBtn")?.addEventListener("click", () => {
+            localStorage.removeItem("authToken");
+            window.location.href = "login.html";
+        });
+
+        loadUser();
+
+        async function fetchMyReuses() {
+            const token = localStorage.getItem("authToken");
+            const res = await fetch(`${API}/api/tracks/mine`, {
+                headers: { Authorization: "Bearer " + token }
+            });
+            if (!res.ok) throw new Error("Erro ao carregar músicas");
+            const all = await res.json();
+            return all.filter(t =>
+                t.type === "reuse" ||
+                t.metadata?.sc4m?.usage === "music-reuse"
+            );
+        }
+
+        async function render() {
+            const grid = document.getElementById("grid");
+            grid.innerHTML = "";
+            const tracks = await fetchMyReuses();
+            if (tracks.length === 0) {
+                document.getElementById("empty").classList.remove("hidden");
+                return;
+            }
+            document.getElementById("empty").classList.add("hidden");
+
+            tracks.forEach((m) => {
+                const el = document.createElement("div");
+                el.className = "card bg-white rounded-lg overflow-hidden shadow hover:shadow-xl transition";
+
+                el.innerHTML = `
+          <div class="h-40 w-full overflow-hidden relative">
+            <img src="${API}/api/tracks/${m._id}/cover"
+                 onerror="this.src='images/music-placeholder.jpg'"
+                 class="h-40 w-full object-cover hover:scale-105 transition duration-300"
+                 alt="${m.title}">
+            <span class="absolute top-2 left-2 text-xs px-2 py-1 rounded bg-black/60 text-white">
+              ${m.visibility === 'public' ? 'Pública' : 'Privada'}
+            </span>
+          </div>
+          <div class="p-4">
+            <h4 class="font-semibold text-slate-900 mb-1">${m.title}</h4>
+            <h2 class="font-semibold text-slate-400 mb-2">${m.artist}</h2>
+            <span class="inline-block text-xs px-2 py-1 bg-emerald-600 text-white rounded mb-2">♻️ Reutilização</span>
+            <audio controls class="w-full mb-3"></audio>
+            <button class="px-3 py-2 rounded bg-indigo-600 text-white hover:bg-indigo-700 w-full">Escolher</button>
+          </div>
+        `;
+
+                const audio = el.querySelector("audio");
+                loadAudio(m._id, audio);
+
+                const btn = el.querySelector("button");
+                btn.addEventListener("click", () => selectForMix(m));
+
+                grid.appendChild(el);
+            });
+        }
+
+        async function loadAudio(trackId, audioEl) {
+            const token = localStorage.getItem("authToken");
+            try {
+                const res = await fetch(`${API}/api/tracks/${trackId}/file`, {
+                    headers: { Authorization: "Bearer " + token }
+                });
+                if (!res.ok) throw new Error("Erro ao buscar áudio");
+                const blob = await res.blob();
+                audioEl.src = URL.createObjectURL(blob);
+            } catch (err) {
+                console.error("Erro ao carregar áudio:", err);
+            }
+        }
+
+        function selectForMix(track) {
+            const snippets = JSON.parse(localStorage.getItem("snippets") || "[]");
+
+            const isReuse = track.type === "reuse" || track.metadata?.sc4m?.usage === "music-reuse";
+
+            const snippet = {
+                id: track._id,
+                title: track.title,
+                artist: track.artist || "Desconhecido",
+                creatorName: track.user?.firstname || "N/A",
+                creatorWallet: track.user?.ethWallet || "0x0000000000000000000000000000000000000000",
+                url: `${API}/api/tracks/${track._id}/file`,
+                basePrice: track.metadata?.basePrice || "0",
+            };
+
+            if (isReuse) {
+                snippet.start = track.metadata?.imaf?.start || 0;
+                snippet.end = track.metadata?.imaf?.end || track.metadata?.duration || 0;
+                snippet.percent = track.metadata?.imaf?.percent || 0;
+            } else {
+                snippet.start = 0;
+                snippet.end = track.metadata?.duration || 0;
+                snippet.percent = 100;
+            }
+
+            snippets.push(snippet);
+            localStorage.setItem("snippets", JSON.stringify(snippets));
+            window.location.href = "editor.html";
+        }
+
+        render();
+    </script>
+</body>
+
+</html>

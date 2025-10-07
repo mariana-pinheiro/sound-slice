@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Registe-se</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .bg-custom-dark {
+      background-color: #091a2b;
+    }
+
+    .text-custom-blue {
+      color: #00a2fd;
+    }
+
+    .hover\:text-custom-blue:hover {
+      color: #00a2fd;
+    }
+
+    .bg-custom-blue {
+      background-color: #00a2fd;
+    }
+
+    .hover\:bg-custom-blue:hover {
+      background-color: #0090e0;
+    }
+  </style>
+</head>
+
+<body class="bg-gray-50 font-sans min-h-screen flex flex-col">
+  <!-- HEADER -->
+  <header class="bg-custom-dark text-white flex items-center justify-between px-8 py-4 shadow-md">
+    <a href="index.html" class="flex items-center space-x-2 text-2xl font-bold cursor-pointer">
+      <img src="images/icon.png" alt="Logo" class="h-8 w-auto">
+      <span>SoundSlice</span>
+    </a>
+  </header>
+
+  <main class="flex-grow flex items-center justify-center px-4 py-8">
+    <div class="w-full max-w-3xl bg-white shadow rounded-lg p-6 sm:p-8">
+      <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Registe-se</h2>
+      <form id="registerForm">
+        <div class="formbold-steps">
+          <ul>
+            <li class="formbold-step-menu1 active"><span>1</span>Dados Pessoais</li>
+            <li class="formbold-step-menu2"><span>2</span>Pagamentos</li>
+            <li class="formbold-step-menu3"><span>3</span>Confirmar</li>
+          </ul>
+        </div>
+
+        <!-- Etapa 1 -->
+        <div class="formbold-form-step formbold-form-step-1 active">
+          <div class="formbold-input-flex">
+            <div>
+              <label for="firstname" class="formbold-form-label">Primeiro Nome</label>
+              <input type="text" name="firstname" id="firstname" class="formbold-form-input" required />
+            </div>
+            <div>
+              <label for="lastname" class="formbold-form-label">Último Nome</label>
+              <input type="text" name="lastname" id="lastname" class="formbold-form-input" required />
+            </div>
+          </div>
+          <div>
+            <label for="artistName" class="formbold-form-label">Nome Artístico (opcional)</label>
+            <input type="text" name="artistName" id="artistName" class="formbold-form-input" />
+          </div>
+
+          <div class="formbold-input-flex">
+            <div>
+              <label for="dob" class="formbold-form-label">Data de Nascimento</label>
+              <input type="date" name="dob" id="dob" class="formbold-form-input" required />
+            </div>
+            <div>
+              <label for="email" class="formbold-form-label">Email</label>
+              <input type="email" name="email" id="email" class="formbold-form-input" required />
+            </div>
+          </div>
+          <div class="formbold-input-flex">
+            <div class="relative w-full">
+              <label for="password" class="formbold-form-label">Palavra-Passe</label>
+              <input type="password" name="password" id="password" class="formbold-form-input pr-10" required />
+              <button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                onclick="togglePassword('password', this)">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                  class="w-5 h-5">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+              </button>
+            </div>
+
+            <div class="relative w-full">
+              <label for="confirmPassword" class="formbold-form-label">Confirmar Palavra-Passe</label>
+              <input type="password" name="confirmPassword" id="confirmPassword" class="formbold-form-input pr-10"
+                required />
+              <button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                onclick="togglePassword('confirmPassword', this)">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                  class="w-5 h-5">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="formbold-input-flex">
+            <div>
+              <label for="phone" class="formbold-form-label">Telefone (opcional)</label>
+              <input type="tel" name="phone" id="phone" class="formbold-form-input" placeholder="+351 912 345 678" />
+            </div>
+            <div>
+              <label for="profilePic" class="formbold-form-label">Foto de Perfil (opcional)</label>
+              <input type="file" name="profilePic" id="profilePic" accept="image/*" class="formbold-form-input" />
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Etapa 2 -->
+        <div class="formbold-form-step formbold-form-step-2">
+          <div class="formbold-input-flex">
+            <div>
+              <label for="country" class="formbold-form-label">País</label>
+              <select id="country" name="country" class="formbold-form-input" required></select>
+            </div>
+            <div>
+              <label for="city" class="formbold-form-label">Localidade</label>
+              <select id="city" name="city" class="formbold-form-input" required></select>
+            </div>
+          </div>
+
+          <div>
+            <label for="address" class="formbold-form-label">Endereço</label>
+            <input type="text" id="address" name="address" class="formbold-form-input" required />
+          </div>
+
+          <div class="formbold-input-flex">
+            <div>
+              <label for="ethWallet" class="formbold-form-label">Endereço Ethereum</label>
+              <input type="text" id="ethWallet" name="ethWallet" class="formbold-form-input" placeholder="0x1234abcd..."
+                pattern="^0x[a-fA-F0-9]{40}$" required />
+            </div>
+          </div>
+
+          <div class="mt-4">
+            <input type="checkbox" id="paymentTerms" required />
+            <label for="paymentTerms">Aceito receber pagamentos via blockchain</label>
+          </div>
+        </div>
+
+        <!-- Etapa 3 -->
+        <div class="formbold-form-step formbold-form-step-3">
+          <div class="formbold-form-confirm">
+            <p>Revise os seus dados antes de submeter. Só continuará se aceitar os termos.</p>
+            <ul class="text-sm text-gray-600" id="reviewData"></ul>
+
+            <div class="mt-4">
+              <input type="checkbox" id="terms" required />
+              <label for="terms">Aceito os Termos de Utilização</label>
+            </div>
+            <div>
+              <input type="checkbox" id="privacy" required />
+              <label for="privacy">Aceito a Política de Privacidade</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="formbold-form-btn-wrapper">
+          <button type="button" class="formbold-back-btn" style="display:none">Voltar</button>
+          <button type="submit" class="formbold-btn">Próximo</button>
+        </div>
+      </form>
+    </div>
+    <div id="toast-root" class="fixed z-50 bottom-6 right-6 space-y-3 pointer-events-none"></div>
+    </div>
+
+    <div id="toast-root" class="fixed z-50 bottom-6 right-6 space-y-3 pointer-events-none"></div>
+
+
+
+    <script>
+      const steps = document.querySelectorAll('.formbold-form-step');
+      const backBtn = document.querySelector('.formbold-back-btn');
+      const nextBtn = document.querySelector('.formbold-btn');
+      const menuSteps = [
+        document.querySelector('.formbold-step-menu1'),
+        document.querySelector('.formbold-step-menu2'),
+        document.querySelector('.formbold-step-menu3')
+      ];
+      let currentStep = 0;
+
+
+      const showStep = (index) => {
+        steps.forEach((step, i) => {
+          step.classList.toggle('active', i === index);
+          menuSteps[i].classList.toggle('active', i === index);
+        });
+        backBtn.style.display = index > 0 ? 'block' : 'none';
+        nextBtn.textContent = index === steps.length - 1 ? 'Submeter' : 'Próximo';
+      };
+      showStep(currentStep);
+
+      backBtn.addEventListener('click', () => {
+        if (currentStep > 0) {
+          currentStep--;
+          showStep(currentStep);
+        }
+      });
+
+      nextBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+
+        if (currentStep === 0) {
+          const password = document.getElementById('password').value;
+          const confirm = document.getElementById('confirmPassword').value;
+          const strong = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+
+          if (!strong.test(password)) {
+            notify("A palavra-passe deve ter pelo menos 8 caracteres, incluindo letra maiúscula, número e símbolo.");
+            return;
+          }
+          if (password !== confirm) {
+            notify("As palavras-passe não coincidem.");
+            return;
+          }
+
+          const dob = document.getElementById('dob').value;
+          const birthDate = new Date(dob);
+          const today = new Date();
+          const ageDiff = today.getFullYear() - birthDate.getFullYear();
+          const monthDiff = today.getMonth() - birthDate.getMonth();
+          const dayDiff = today.getDate() - birthDate.getDate();
+
+          const isUnder15 = (
+            ageDiff < 15 ||
+            (ageDiff === 15 && (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)))
+          );
+
+          if (!dob || birthDate > today) {
+            notify("Data de nascimento inválida.");
+            return;
+          }
+
+          if (isUnder15) {
+            notify("Tem de ter pelo menos 15 anos para criar conta.");
+            return;
+          }
+        }
+
+        if (currentStep === 1) {
+          const ethWallet = document.getElementById('ethWallet').value;
+          if (!/^0x[a-fA-F0-9]{40}$/.test(ethWallet)) {
+            notify("Endereço Ethereum inválido.");
+            return;
+          }
+
+          const data = [
+            `Nome: ${document.getElementById('firstname').value} ${document.getElementById('lastname').value}`,
+            `Email: ${document.getElementById('email').value}`,
+            `Telefone: ${document.getElementById('phone').value}`,
+            `Ethereum Wallet: ${ethWallet}`,
+            `País: ${document.getElementById('country').value}`,
+            `Localidade: ${document.getElementById('city').value}`
+          ];
+          document.getElementById('reviewData').innerHTML = data.map(item => `<li>${item}</li>`).join('');
+        }
+
+        if (currentStep === 2) {
+          if (!document.getElementById('terms').checked || !document.getElementById('privacy').checked) {
+            notify("Tem de aceitar os termos e a política de privacidade.");
+            return;
+          }
+
+          // Prepara o formData
+          const formData = new FormData();
+          formData.append("firstname", document.getElementById('firstname').value);
+          formData.append("lastname", document.getElementById('lastname').value);
+          formData.append("artistName", document.getElementById('artistName').value || "");
+          formData.append("dob", document.getElementById('dob').value);
+          formData.append("email", document.getElementById('email').value);
+          formData.append("country", document.getElementById('country').value);
+          formData.append("city", document.getElementById('city').value);
+          formData.append("password", document.getElementById('password').value);
+          formData.append("phone", document.getElementById('phone').value || "");
+          formData.append("ethWallet", document.getElementById('ethWallet').value);
+          formData.append("acceptPayments", document.getElementById('paymentTerms').checked);
+          formData.append("terms", document.getElementById('terms').checked);
+          formData.append("privacy", document.getElementById('privacy').checked);
+
+          const fileInput = document.getElementById('profilePic');
+          if (fileInput.files.length > 0) {
+            formData.append("profilePic", fileInput.files[0]);
+          }
+
+          for (let pair of formData.entries()) {
+            console.log("🔹", pair[0], "=", pair[1]);
+          }
+
+
+          try {
+            const res = await fetch('http://localhost:3000/api/users/register', {
+              method: 'POST',
+              body: formData
+            });
+            const result = await res.json();
+            notify(result.message || result.error);
+            if (res.ok) window.location.href = 'login.html';
+          } catch (err) {
+            console.error("Erro ao submeter:", err);
+            notify("Erro ao registar utilizador.");
+          }
+
+          return;
+        };
+
+        if (currentStep < steps.length - 1) {
+          currentStep++;
+          showStep(currentStep);
+        }
+      }
+      )
+
+      async function loadCountries() {
+        try {
+          const res = await fetch('https://restcountries.com/v3.1/all?fields=name');
+          const countries = await res.json();
+          const select = document.getElementById('country');
+          countries.sort((a, b) => a.name.common.localeCompare(b.name.common));
+          countries.forEach(c => {
+            const opt = document.createElement('option');
+            opt.value = c.name.common;
+            opt.textContent = c.name.common;
+            select.appendChild(opt);
+          });
+        } catch (err) {
+          console.error("Erro ao carregar países:", err);
+        }
+      }
+
+      document.getElementById('country').addEventListener('change', async function () {
+        const country = this.value;
+        const res = await fetch('https://countriesnow.space/api/v0.1/countries/cities', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ country })
+        });
+        const data = await res.json();
+        const citySelect = document.getElementById('city');
+        citySelect.innerHTML = '<option value="">Escolha uma cidade</option>';
+        if (data.data && Array.isArray(data.data)) {
+          data.data.forEach(city => {
+            const opt = document.createElement('option');
+            opt.value = city;
+            opt.textContent = city;
+            citySelect.appendChild(opt);
+          });
+        }
+      });
+
+      loadCountries();
+
+      function togglePassword(id, btn) {
+        const input = document.getElementById(id);
+        if (input.type === "password") {
+          input.type = "text";
+        } else {
+          input.type = "password";
+        }
+      }
+    </script>
+
+    <script>
+      function notify(message, type = 'info', timeout = 3000) {
+        const root = document.getElementById('toast-root');
+        const wrap = document.createElement('div');
+        wrap.className = "pointer-events-auto w-[320px] rounded-lg shadow-lg border bg-white flex items-start gap-3 p-4 animate-[fadein_.2s_ease-out]";
+        const colors = {
+          success: 'bg-green-100 text-green-800 border-green-200',
+          error: 'bg-rose-100 text-rose-800 border-rose-200',
+          info: 'bg-indigo-100 text-indigo-800 border-indigo-200'
+        };
+        const badge = document.createElement('div');
+        badge.className = `shrink-0 h-6 w-6 rounded-full flex items-center justify-center ${colors[type]}`;
+        badge.innerHTML = ({
+          success: '✓', error: '!', info: 'i'
+        })[type];
+
+        const text = document.createElement('div');
+        text.className = "text-sm text-slate-700";
+        text.textContent = message;
+
+        const close = document.createElement('button');
+        close.className = "ml-auto text-slate-400 hover:text-slate-600";
+        close.innerHTML = '&times;';
+        close.onclick = () => root.removeChild(wrap);
+
+        wrap.appendChild(badge);
+        wrap.appendChild(text);
+        wrap.appendChild(close);
+        root.appendChild(wrap);
+
+        setTimeout(() => {
+          if (wrap.parentNode) root.removeChild(wrap);
+        }, timeout);
+      }
+
+    </script>
+  </main>
+  <footer class="bg-custom-dark text-white py-6 mt-auto">
+    <div class="max-w-6xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center">
+      <p class="text-sm">&copy; <span id="year"></span> SoundSlice. Todos os direitos reservados.</p>
+      <div class="flex space-x-4 mt-4 md:mt-0">
+        <a href="sobre.html" class="hover:text-custom-blue">Sobre</a>
+        <a href="contactos.html" class="hover:text-custom-blue">Contactos</a>
+        <a href="polpriv.html" class="hover:text-custom-blue">Política de Privacidade</a>
+      </div>
+    </div>
+  </footer>
+</body>
+
+</html>
+
+<style>
+  @keyframes fadein {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: "Inter", sans-serif;
+  }
+
+  .formbold-main-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 48px;
+  }
+
+  .formbold-form-wrapper {
+    margin: 0 auto;
+    max-width: 550px;
+    width: 100%;
+    background: white;
+  }
+
+  .formbold-steps {
+    padding-bottom: 18px;
+    margin-bottom: 35px;
+    border-bottom: 1px solid #DDE3EC;
+  }
+
+  .formbold-steps ul {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    display: flex;
+    gap: 40px;
+  }
+
+  .formbold-steps li {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 24px;
+    color: #536387;
+  }
+
+  .formbold-steps li span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #DDE3EC;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 24px;
+    color: #536387;
+  }
+
+  .formbold-steps li.active {
+    color: #07074D;
+    ;
+  }
+
+  .formbold-steps li.active span {
+    background: #6A64F1;
+    color: #FFFFFF;
+  }
+
+  .formbold-input-flex {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 22px;
+  }
+
+  .formbold-input-flex>div {
+    width: 50%;
+  }
+
+  .formbold-form-input {
+    width: 100%;
+    padding: 13px 22px;
+    border-radius: 5px;
+    border: 1px solid #DDE3EC;
+    background: #FFFFFF;
+    font-weight: 500;
+    font-size: 16px;
+    color: #536387;
+    outline: none;
+    resize: none;
+  }
+
+  .formbold-form-input:focus {
+    border-color: #6a64f1;
+    box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.05);
+  }
+
+  .formbold-form-label {
+    color: #07074D;
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 24px;
+    display: block;
+    margin-bottom: 10px;
+  }
+
+  .formbold-form-confirm {
+    border-bottom: 1px solid #DDE3EC;
+    padding-bottom: 35px;
+  }
+
+  .formbold-form-confirm p {
+    font-size: 16px;
+    line-height: 24px;
+    color: #536387;
+    margin-bottom: 22px;
+    width: 75%;
+  }
+
+  .formbold-form-confirm>div {
+    display: flex;
+    gap: 15px;
+  }
+
+  .formbold-confirm-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #FFFFFF;
+    border: 0.5px solid #DDE3EC;
+    border-radius: 5px;
+    font-size: 16px;
+    line-height: 24px;
+    color: #536387;
+    cursor: pointer;
+    padding: 10px 20px;
+    transition: all .3s ease-in-out;
+  }
+
+  .formbold-confirm-btn {
+    box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.12);
+  }
+
+  .formbold-confirm-btn.active {
+    background: #6A64F1;
+    color: #FFFFFF;
+  }
+
+  .formbold-form-step-1,
+  .formbold-form-step-2,
+  .formbold-form-step-3 {
+    display: none;
+  }
+
+  .formbold-form-step-1.active,
+  .formbold-form-step-2.active,
+  .formbold-form-step-3.active {
+    display: block;
+  }
+
+  .formbold-form-btn-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 25px;
+    margin-top: 25px;
+  }
+
+  .formbold-back-btn {
+    cursor: pointer;
+    background: #FFFFFF;
+    border: none;
+    color: #07074D;
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 24px;
+    display: none;
+  }
+
+  .formbold-back-btn.active {
+    display: block;
+  }
+
+  .formbold-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 16px;
+    border-radius: 5px;
+    padding: 10px 25px;
+    border: none;
+    font-weight: 500;
+    background-color: #6A64F1;
+    color: white;
+    cursor: pointer;
+  }
+
+  .formbold-btn:hover {
+    box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.05);
+  }
+</style>

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SoundSlice — Política de Privacidade</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .bg-custom-dark {
+      background-color: #091a2b;
+    }
+
+    .text-custom-blue {
+      color: #00a2fd;
+    }
+
+    .hover\:text-custom-blue:hover {
+      color: #00a2fd;
+    }
+  </style>
+</head>
+
+<body class="bg-gray-50 font-sans min-h-screen flex flex-col">
+
+  <!-- HEADER -->
+  <header class="bg-custom-dark text-white flex items-center justify-between px-8 py-4 shadow-md">
+    <a href="index.html" class="flex items-center space-x-2 text-2xl font-bold cursor-pointer">
+      <img src="images/icon.png" alt="Logo SoundSlice" class="h-8 w-auto">
+      <span>SoundSlice</span>
+    </a>
+
+    <nav class="flex items-center space-x-6 text-white text-lg">
+      <a href="musicas-outros.html" class="hover:text-[#00a2fd] transition ">
+        Músicas de Outros Criadores
+      </a>
+      <a href="minhas-musicas.html" class="hover:text-[#00a2fd] transition underline">
+        Minhas Músicas
+      </a>
+
+      <!-- Quando user não está autenticado -->
+      <a id="auth-link" href="login.html" class="hover:text-[#00a2fd] transition">
+        Login/Registe-se
+      </a>
+
+      <!-- Quando user está autenticado -->
+      <div class="relative hidden" id="userMenuWrapper">
+        <button id="userMenuBtn" class="flex items-center space-x-2 focus:outline-none">
+          <img id="profilePic" src="images/default-avatar.png" alt="Avatar"
+            class="h-8 w-8 rounded-full border border-gray-300">
+          <span id="welcomeName"></span>
+        </button>
+
+        <!-- Dropdown -->
+        <div id="userDropdown" class="absolute right-0 mt-2 w-48 bg-white text-black rounded shadow-lg hidden">
+          <a href="profile.html" class="block px-4 py-2 hover:bg-gray-100">O meu perfil</a>
+          <button id="logoutBtn" class="w-full text-left px-4 py-2 hover:bg-gray-100">Logout</button>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <!-- MAIN -->
+  <main class="flex-grow max-w-4xl mx-auto p-6 sm:p-8 w-full">
+    <h1 class="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-6">Política de Privacidade</h1>
+
+    <section class="bg-white shadow rounded-lg p-6 sm:p-8 leading-relaxed text-slate-700 space-y-4">
+      <p>
+        A tua privacidade é importante para nós. Esta política explica como recolhemos, usamos e protegemos as tuas
+        informações na plataforma <strong>SoundSlice</strong>.
+      </p>
+
+      <h2 class="text-2xl font-bold text-slate-900 mt-6">1. Recolha de Dados</h2>
+      <p>Podemos recolher dados como nome, email, dados de pagamento e interações na plataforma.</p>
+
+      <h2 class="text-2xl font-bold text-slate-900 mt-6">2. Utilização</h2>
+      <p>Usamos os teus dados para fornecer os serviços da SoundSlice, gerir contratos inteligentes, processar
+        pagamentos e melhorar a experiência do utilizador.</p>
+
+      <h2 class="text-2xl font-bold text-slate-900 mt-6">3. Partilha</h2>
+      <p>Não vendemos os teus dados. Podemos partilhá-los apenas com parceiros de confiança necessários para o
+        funcionamento da plataforma.</p>
+
+      <h2 class="text-2xl font-bold text-slate-900 mt-6">4. Segurança</h2>
+      <p>Usamos tecnologias modernas para proteger a tua informação contra acessos não autorizados.</p>
+
+      <h2 class="text-2xl font-bold text-slate-900 mt-6">5. Direitos</h2>
+      <p>Tens o direito de aceder, corrigir ou eliminar os teus dados pessoais. Contacta-nos em <a
+          href="mailto:privacidade@soundslice.pt"
+          class="text-custom-blue hover:underline">privacidade@soundslice.pt</a>.</p>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="bg-custom-dark text-white py-6 mt-auto">
+    <div class="max-w-6xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center">
+      <p class="text-sm">&copy; <span id="year"></span> SoundSlice. Todos os direitos reservados.</p>
+      <div class="flex space-x-4 mt-4 md:mt-0">
+        <a href="sobre.html" class="hover:text-custom-blue">Sobre</a>
+        <a href="contactos.html" class="hover:text-custom-blue">Contactos</a>
+        <a href="privacidade.html" class="hover:text-custom-blue underline">Política de Privacidade</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const API = 'http://localhost:3000';
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // -------- Sessão --------
+    async function loadUser() {
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        document.getElementById("auth-link").style.display = "inline-block";
+        document.getElementById("userMenuWrapper").classList.add("hidden");
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API}/api/users/me`, {
+          headers: { Authorization: "Bearer " + token }
+        });
+
+        if (res.ok) {
+          const user = await res.json();
+
+          document.getElementById("welcomeName").textContent =
+            "Olá " + (user.firstname || "Utilizador");
+
+          const picEl = document.getElementById("profilePic");
+          picEl.src = user.profilePic || "images/default-avatar.png";
+
+          document.getElementById("auth-link").style.display = "none";
+          document.getElementById("userMenuWrapper").classList.remove("hidden");
+        } else {
+          document.getElementById("auth-link").style.display = "inline-block";
+          document.getElementById("userMenuWrapper").classList.add("hidden");
+        }
+      } catch (err) {
+        console.error("Erro a carregar user:", err);
+      }
+    }
+
+    // Toggle dropdown
+    document.addEventListener("click", (e) => {
+      const menu = document.getElementById("userDropdown");
+      const btn = document.getElementById("userMenuBtn");
+
+      if (btn && btn.contains(e.target)) {
+        menu.classList.toggle("hidden");
+      } else {
+        menu.classList.add("hidden");
+      }
+    });
+
+    // Logout
+    document.getElementById("logoutBtn")?.addEventListener("click", () => {
+      localStorage.removeItem("authToken");
+      localStorage.removeItem("nameCache");
+      window.location.href = "login.html";
+    });
+
+    loadUser();
+  </script>
+</body>
+
+</html>

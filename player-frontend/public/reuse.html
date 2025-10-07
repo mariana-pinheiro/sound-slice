@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SoundSlice — Reutilizar Música</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .bg-custom-dark {
+      background-color: #091a2b;
+    }
+
+    .text-custom-blue {
+      color: #00a2fd;
+    }
+
+    .hover\:text-custom-blue:hover {
+      color: #00a2fd;
+    }
+    
+    .wave-container {
+      position: relative;
+      height: 80px;
+      background: repeating-linear-gradient(90deg,
+          #cbd5e1, #cbd5e1 2px,
+          #f8fafc 2px, #f8fafc 6px);
+      border-radius: 6px;
+      overflow: hidden;
+      margin-top: 10px;
+    }
+
+    .selection {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      background: rgba(0, 162, 253, 0.3);
+      border: 2px solid #00a2fd;
+    }
+
+    .handle {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 10px;
+      background: #00a2fd;
+      cursor: ew-resize;
+    }
+
+    .handle-left {
+      left: 0;
+    }
+
+    .handle-right {
+      right: 0;
+    }
+  </style>
+</head>
+
+<body class="bg-gray-50 font-sans min-h-screen flex flex-col">
+  <!-- Header -->
+  <header class="bg-custom-dark text-white flex items-center justify-between px-8 py-4 shadow-md">
+    <a href="index.html" class="flex items-center space-x-2 text-2xl font-bold cursor-pointer">
+      <img src="images/icon.png" alt="Logo SoundSlice" class="h-8 w-auto">
+      <span>SoundSlice</span>
+    </a>
+    <nav class="flex items-center space-x-6 text-white text-lg">
+      <a href="musicas-outros.html" class="hover:text-[#00a2fd] transition">Músicas de Outros Criadores</a>
+      <a href="minhas-musicas.html" class="hover:text-[#00a2fd] transition underline">Minhas Músicas</a>
+      <a id="auth-link" href="login.html" class="hover:text-[#00a2fd] transition">Login/Registe-se</a>
+      <div class="relative hidden" id="userMenuWrapper">
+        <button id="userMenuBtn" class="flex items-center space-x-2 focus:outline-none">
+          <img id="profilePic" src="images/default-avatar.png" alt="Avatar" class="h-8 w-8 rounded-full border">
+          <span id="welcomeName"></span>
+        </button>
+        <div id="userDropdown" class="absolute right-0 mt-2 w-48 bg-white text-black rounded shadow-lg hidden">
+          <a href="profile.html" class="block px-4 py-2 hover:bg-gray-100">O meu perfil</a>
+          <button id="logoutBtn" class="w-full text-left px-4 py-2 hover:bg-gray-100">Logout</button>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <main class="flex-grow max-w-3xl mx-auto p-6 sm:p-8 w-full">
+    <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 mb-6"> Reutilizar Música</h1>
+
+    <!-- Faixa Original -->
+    <section id="originalTrack" class="bg-white rounded-lg shadow p-6 mb-6 hidden">
+      <h2 class="text-xl font-semibold mb-4">Faixa Original</h2>
+      <p id="trackInfo" class="text-slate-700 mb-2"></p>
+      <audio id="trackPlayer" controls class="w-full mb-4" controlsList="nodownload noplaybackrate"
+        oncontextmenu="return false;"> </audio>
+
+
+      <div class="wave-container" id="wave">
+        <div class="selection" id="selection">
+          <div class="handle handle-left"></div>
+          <div class="handle handle-right"></div>
+        </div>
+      </div>
+      <p id="timeRange" class="mt-2 text-sm font-mono text-slate-700"></p>
+    </section>
+
+    <div id="track-details" class="bg-white p-4 rounded-lg shadow mt-4"></div>
+
+
+    <!-- Resultado -->
+    <section id="analysis" class="bg-white rounded-lg shadow p-6 mb-6 hidden">
+      <h2 class="text-xl font-semibold mb-4">Resultado da Análise</h2>
+      <p> Preço base do criador: <span id="basePriceEth" class="font-bold text-slate-900"></span> ETH</p>
+      <p> Percentagem reutilizada: <span id="reusePercent" class="font-bold text-indigo-600"></span>%</p>
+      <p> Valor a pagar: <span id="reuseValue" class="font-bold text-green-600"></span> ETH</p>
+      <div class="mt-4 flex flex-wrap gap-3">
+        <button id="payAndRegister" class="px-4 py-2 rounded-md bg-emerald-600 text-white hover:bg-emerald-700 hidden">
+          Pagar no MetaMask & Registar
+        </button>
+      </div>
+    </section>
+
+    <div id="status" class="text-sm text-slate-600"></div>
+  </main>
+
+  <footer class="bg-custom-dark text-white py-6 mt-auto">
+    <div class="max-w-6xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center">
+      <p class="text-sm">&copy; <span id="year"></span> SoundSlice. Todos os direitos reservados.</p>
+      <div class="flex space-x-4 mt-4 md:mt-0">
+        <a href="sobre.html" class="hover:text-custom-blue">Sobre</a>
+        <a href="contactos.html" class="hover:text-custom-blue">Contactos</a>
+        <a href="polpriv.html" class="hover:text-custom-blue">Política de Privacidade</a>
+      </div>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { ethers } from "https://cdn.jsdelivr.net/npm/ethers@6.6.0/dist/ethers.min.js";
+
+    const API = "http://localhost:3000";
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    const trackId = new URLSearchParams(location.search).get('id');
+    const statusEl = document.getElementById('status');
+    let currentTrack = null;
+    let duration = 0, start = 0, end = 1;
+    let basePriceWei = 0n, contractAddress = null;
+    let player = null;
+
+    const wave = document.getElementById("wave");
+    const selection = document.getElementById("selection");
+    const leftHandle = selection.querySelector(".handle-left");
+    const rightHandle = selection.querySelector(".handle-right");
+    const timeLabel = document.getElementById("timeRange");
+
+    // -------- Sessão --------
+    async function loadUser() {
+      try {
+        const token = localStorage.getItem("authToken");
+        if (!token) return; // ou redireciona
+        const res = await fetch(`${API}/api/users/me`, {
+          headers: { Authorization: "Bearer " + token }
+        });
+
+        if (res.ok) {
+          const user = await res.json();
+          document.getElementById("welcomeName").textContent = "Olá " + (user.firstname || "Utilizador");
+          document.getElementById("profilePic").src = user.profilePic || "images/default-avatar.png";
+          document.getElementById("auth-link").style.display = "none";
+          document.getElementById("userMenuWrapper").classList.remove("hidden");
+        }
+      } catch (err) { console.error("Erro a carregar user:", err); }
+    }
+
+    // Dropdown
+    document.addEventListener("click", (e) => {
+      const menu = document.getElementById("userDropdown");
+      const btn = document.getElementById("userMenuBtn");
+      if (btn && btn.contains(e.target)) menu.classList.toggle("hidden");
+      else menu.classList.add("hidden");
+    });
+
+    // Logout
+    document.getElementById("logoutBtn")?.addEventListener("click", async () => {
+      localStorage.removeItem("authToken");
+      localStorage.removeItem("nameCache");
+      window.location.href = "login.html";
+
+    });
+
+    loadUser();
+
+    function fmtTime(s) {
+      s = Math.max(0, Math.floor(s));
+      const m = Math.floor(s / 60).toString().padStart(2, '0');
+      const sec = (s % 60).toString().padStart(2, '0');
+      return `${m}:${sec}`;
+    }
+
+
+    function renderTrackDetails(t) {
+      const detailsEl = document.getElementById("track-details");
+      detailsEl.innerHTML = `
+    <h2 class="font-semibold text-lg mb-3">Detalhes da Música</h2>
+    <ul class="text-sm text-slate-700 space-y-1">
+      <li><strong>Título:</strong> ${t.title}</li>
+      <li><strong>Artista:</strong> ${t.artist}</li>
+      <li><strong>Género:</strong> ${t.metadata?.genre}</li>
+      <li><strong>Duração:</strong> ${fmtTime(t.metadata?.duration)}</li>
+      <li><strong>Formato:</strong> ${t.metadata?.format || "MP3"}</li>
+      <li><strong>Proprietário:</strong> ${t.ownerName || "Desconhecido"}</li>
+      <li><strong>Total de reutilizações:</strong> ${t.stats?.totalReuses || 0}</li>
+    </ul>
+  `;
+
+      if (t.coholders && t.coholders.length > 0) {
+        html += `
+      <div class="mt-4">
+        <p class="text-sm text-gray-600 font-semibold">Titulares adicionais:</p>
+        <ul class="text-sm text-gray-700 list-disc list-inside mt-1">
+          ${t.coholders.map(c =>
+          `<li>${c.name || "Sem nome"}${c.wallet ? ` — <span class='text-xs text-gray-500'>${c.wallet}</span>` : ""}</li>`
+        ).join("")}
+        </ul>
+      </div>
+    `;
+      }
+
+      detailsEl.innerHTML = html;
+    }
+
+    function updateSelectionUI() {
+      const waveWidth = wave.offsetWidth;
+      selection.style.left = start + "px";
+      selection.style.width = (end - start) + "px";
+
+      if (duration > 0) {
+        const startTime = Math.round((start / waveWidth) * duration);
+        const endTime = Math.round((end / waveWidth) * duration);
+        timeLabel.textContent = `${fmtTime(startTime)} – ${fmtTime(endTime)}`;
+
+        if (basePriceWei > 0n) {
+          const length = endTime - startTime;
+          if (length > 0) {
+            const percent = Math.max(1, Math.round((length / duration) * 100));
+            const valueWei = basePriceWei * BigInt(percent) / 100n;
+            document.getElementById("reusePercent").textContent = percent;
+            document.getElementById("reuseValue").textContent = ethers.formatEther(valueWei);
+            document.getElementById("analysis").classList.remove("hidden");
+            document.getElementById("payAndRegister").classList.remove("hidden");
+          }
+        }
+      }
+    }
+
+    let dragging = null;
+
+    wave.addEventListener("mousedown", (e) => {
+      if (e.target === leftHandle) dragging = "left";
+      else if (e.target === rightHandle) dragging = "right";
+    });
+
+    window.addEventListener("mouseup", () => dragging = null);
+
+    window.addEventListener("mousemove", (e) => {
+      if (!dragging) return;
+      const rect = wave.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const waveWidth = wave.offsetWidth;
+
+      if (dragging === "left") {
+        start = Math.min(Math.max(0, x), end - 20);
+      } else if (dragging === "right") {
+        end = Math.max(Math.min(waveWidth, x), start + 20);
+      }
+      updateSelectionUI();
+    });
+
+    async function loadTrack() {
+      const r = await fetch(`${API}/api/tracks/${trackId}`);
+      const t = await r.json();
+
+      try {
+        if (t.metadata?.basePrice && !isNaN(Number(t.metadata.basePrice))) {
+          basePriceWei = BigInt(t.metadata.basePrice);
+        } else {
+          basePriceWei = 1000000000000000n; // fallback
+        }
+      } catch (e) {
+        console.warn("Preço base inválido:", t.metadata?.basePrice, e);
+        basePriceWei = 1000000000000000n;
+      }
+
+      document.getElementById("basePriceEth").textContent = ethers.formatEther(basePriceWei);
+      document.getElementById("trackInfo").textContent = `${t.title} • ${t.artist}`;
+      player = document.getElementById("trackPlayer");
+
+      const token = localStorage.getItem("authToken");
+
+      const resFile = await fetch(`${API}/api/tracks/${t._id}/file`, {
+        headers: { Authorization: "Bearer " + token }
+      });
+      if (!resFile.ok) {
+        throw new Error("Não foi possível carregar o ficheiro de áudio");
+      }
+
+      const blob = await resFile.blob();
+      const url = URL.createObjectURL(blob);
+      player.src = url;
+
+      player.onloadedmetadata = () => {
+        duration = Math.floor(player.duration || 0);
+        const waveWidth = wave.offsetWidth;
+        start = waveWidth * 0.1;
+        end = waveWidth * 0.4;
+        updateSelectionUI();
+      };
+      currentTrack = t;
+      document.getElementById("originalTrack").classList.remove("hidden");
+      renderTrackDetails(t);
+    }
+    loadTrack();
+
+    // Pay & Register
+    document.getElementById("payAndRegister").addEventListener("click", async () => {
+      try {
+        statusEl.textContent = "A processar reutilização...";
+        const waveWidth = wave.offsetWidth;
+        const startTime = Math.round((start / waveWidth) * duration);
+        const endTime = Math.round((end / waveWidth) * duration);
+
+        //Backend Calculations
+        const token = localStorage.getItem("authToken");
+        const res = await fetch(`${API}/api/tracks/${trackId}/reuse/select`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + token
+          },
+          body: JSON.stringify({ start: startTime, end: endTime })
+        });
+        const reuseData = await res.json();
+        console.log("reuseData recebido:", reuseData);
+
+        // MetaMask
+        if (!window.ethereum) throw new Error("Precisas do MetaMask!");
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner();
+        const tx = await signer.sendTransaction({
+          to: reuseData.payTo,
+          value: reuseData.value.toString()
+        });
+
+        await tx.wait();
+
+        await fetch(`${API}/api/tracks/${trackId}/reuse/confirm`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + token
+          },
+          body: JSON.stringify({
+            start: startTime,
+            end: endTime, percent: reuseData.percent, snippetId: reuseData.snippetId, snippetName: reuseData.snippetName, paymentTxHash: tx.hash
+          })
+        });
+
+        statusEl.textContent = "✅ Reutilização paga e registada!";
+
+        let snippets = JSON.parse(localStorage.getItem("snippets") || "[]");
+        snippets.push({
+          id: reuseData.snippetId,
+          title: currentTrack.title,
+          artist: currentTrack.artist,
+          start: startTime,
+          end: endTime,
+          percent: reuseData.percent || 0,
+          reuseValue: reuseData.metadata?.sc4m?.value,
+          creatorName: currentTrack.artist,
+          creatorWallet: currentTrack.metadata?.sc4m?.creatorWallet || "0x0000000000000000000000000000000000000000",
+          url: `${API}/api/tracks/snippet/${reuseData.snippetId}`
+        });
+        localStorage.setItem("snippets", JSON.stringify(snippets));
+
+        const fromEditor = new URLSearchParams(location.search).get("from");
+        if (fromEditor === "editor") {
+          window.location.href = "editor.html";
+        } else {
+          window.location.href = "minhas-musicas.html";
+        }
+
+      } catch (err) {
+        console.error(err);
+        statusEl.textContent = "Erro: " + err.message;
+      }
+    });
+  </script>
+</body>
+
+</html>

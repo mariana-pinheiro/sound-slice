@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SoundSlice — Minhas Músicas</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .bg-custom-dark {
+      background-color: #091a2b;
+    }
+
+    .text-custom-blue {
+      color: #00a2fd;
+    }
+
+    .hover\:text-custom-blue:hover {
+      color: #00a2fd;
+    }
+
+    .btn {
+      @apply px-3 py-2 rounded-md text-white bg-indigo-600 hover:bg-indigo-700
+    }
+
+    .card {
+      animation: fadein .25s ease-out
+    }
+
+    @keyframes fadein {
+      from {
+        opacity: 0;
+        transform: translateY(6px)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0)
+      }
+    }
+  </style>
+</head>
+
+<body class="bg-gray-50 font-sans min-h-screen flex flex-col">
+  <!-- Header -->
+  <header class="bg-custom-dark text-white flex items-center justify-between px-8 py-4 shadow-md">
+    <a href="index.html" class="flex items-center space-x-2 text-2xl font-bold cursor-pointer">
+      <img src="images/icon.png" alt="Logo SoundSlice" class="h-8 w-auto">
+      <span>SoundSlice</span>
+    </a>
+
+    <nav class="flex items-center space-x-6 text-white text-lg">
+      <a href="musicas-outros.html" class="hover:text-[#00a2fd] transition">
+        Músicas de Outros Criadores
+      </a>
+      <a href="minhas-musicas.html" class="hover:text-[#00a2fd] transition underline">
+        Minhas Músicas
+      </a>
+
+      <!-- Quando user não está autenticado -->
+      <a id="auth-link" href="login.html" class="hover:text-[#00a2fd] transition">
+        Login/Registe-se
+      </a>
+
+      <!-- Quando user está autenticado -->
+      <div class="relative hidden" id="userMenuWrapper">
+        <button id="userMenuBtn" class="flex items-center space-x-2 focus:outline-none">
+          <img id="profilePic" src="images/default-avatar.png" alt="Avatar"
+            class="h-8 w-8 rounded-full border border-gray-300">
+          <span id="welcomeName"></span>
+        </button>
+
+        <!-- Dropdown -->
+        <div id="userDropdown" class="absolute right-0 mt-2 w-48 bg-white text-black rounded shadow-lg hidden">
+          <a href="profile.html" class="block px-4 py-2 hover:bg-gray-100">O meu perfil</a>
+          <button id="logoutBtn" class="w-full text-left px-4 py-2 hover:bg-gray-100">Logout</button>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <main class="flex-grow max-w-6xl mx-auto p-6 sm:p-8 w-full">
+    <h1 class="text-2xl sm:text-3xl font-bold text-slate-900">As minhas músicas</h1>
+    <div class="flex justify-end gap-3 mb-6">
+      <a href="editor.html" class="px-4 py-2 bg-emerald-600 text-white rounded hover:bg-emerald-700">
+        Criar Mix
+      </a>
+      <a href="upload.html" class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
+        Enviar Música
+      </a>
+    </div>
+
+
+    <!-- Filtros -->
+    <section class="bg-white rounded-lg shadow p-4 sm:p-6 mb-6">
+      <form id="filters" class="grid gap-3 sm:grid-cols-12">
+        <input id="q" type="search" placeholder="Pesquisar por título…"
+          class="sm:col-span-7 rounded-md border border-gray-200 px-4 py-2">
+        <select id="visibility" class="sm:col-span-3 rounded-md border border-gray-200 px-4 py-2">
+          <option value="">Todas</option>
+          <option value="public">Públicas</option>
+          <option value="private">Privadas</option>
+        </select>
+        <select id="sort" class="sm:col-span-2 rounded-md border border-gray-200 px-4 py-2">
+          <option value="recent">Mais recentes</option>
+          <option value="title">Título (A-Z)</option>
+        </select>
+      </form>
+    </section>
+
+    <!-- Grelha -->
+    <section>
+      <div id="grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+      <div id="empty" class="hidden text-center text-slate-500 py-10">Ainda não tens músicas. Começa já a subir a tua
+        primeira faixa!</div>
+    </section>
+  </main>
+
+  <!-- Modal -->
+  <div id="deleteModal" class="hidden fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg shadow-lg p-6 w-96 text-center">
+      <h2 class="text-xl font-semibold mb-4">Eliminar música</h2>
+      <p class="mb-6">Tens a certeza que queres apagar esta música?</p>
+      <div class="flex justify-center gap-4">
+        <button id="cancelDelete" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">
+          Cancelar
+        </button>
+        <button id="confirmDelete" class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">
+          Apagar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="bg-custom-dark text-white py-6 mt-auto">
+    <div class="max-w-6xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center">
+      <p class="text-sm">&copy; <span id="year"></span> SoundSlice. Todos os direitos reservados.</p>
+      <div class="flex space-x-4 mt-4 md:mt-0">
+        <a href="sobre.html" class="hover:text-custom-blue">Sobre</a>
+        <a href="contactos.html" class="hover:text-custom-blue">Contactos</a>
+        <a href="polpriv.html" class="hover:text-custom-blue">Política de Privacidade</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const API = 'http://localhost:3000';
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // -------- Sessão --------
+    async function loadUser() {
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        document.getElementById("auth-link").style.display = "inline-block";
+        document.getElementById("userMenuWrapper").classList.add("hidden");
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API}/api/users/me`, {
+          headers: { Authorization: "Bearer " + token }
+        });
+
+        if (res.ok) {
+          const user = await res.json();
+
+          // Nome
+          document.getElementById("welcomeName").textContent =
+            "Olá " + (user.firstname || "Utilizador");
+
+          // Foto de perfil
+          const picEl = document.getElementById("profilePic");
+          picEl.src = user.profilePic || "images/default-avatar.png";
+
+          document.getElementById("auth-link").style.display = "none";
+          document.getElementById("userMenuWrapper").classList.remove("hidden");
+        } else {
+          document.getElementById("auth-link").style.display = "inline-block";
+          document.getElementById("userMenuWrapper").classList.add("hidden");
+        }
+      } catch (err) {
+        console.error("Erro a carregar user:", err);
+      }
+    }
+
+    // Dropdown
+    document.addEventListener("click", (e) => {
+      const menu = document.getElementById("userDropdown");
+      const btn = document.getElementById("userMenuBtn");
+
+      if (btn && btn.contains(e.target)) {
+        menu.classList.toggle("hidden");
+      } else {
+        menu.classList.add("hidden");
+      }
+    });
+
+    document.getElementById("logoutBtn")?.addEventListener("click", () => {
+      localStorage.removeItem("authToken");
+      localStorage.removeItem("nameCache");
+      window.location.href = "login.html";
+    });
+
+    loadUser();
+
+    async function loadAudio(trackId, audioEl) {
+      const token = localStorage.getItem("authToken");
+      try {
+        const res = await fetch(`${API}/api/tracks/${trackId}/file`, {
+          headers: { Authorization: "Bearer " + token }
+        });
+        if (!res.ok) throw new Error("Erro ao buscar áudio");
+        const blob = await res.blob();
+        audioEl.src = URL.createObjectURL(blob);
+      } catch (err) {
+        console.error("Erro ao carregar áudio:", err);
+      }
+    }
+
+    async function fetchMine({ q = '', visibility = '', sort = 'recent' }) {
+      const params = new URLSearchParams();
+      if (q) params.append('q', q);
+      if (visibility) params.append('visibility', visibility);
+      if (sort) params.append('sort', sort);
+
+      const token = localStorage.getItem("authToken");
+
+      const r = await fetch(`${API}/api/tracks/mine?${params.toString()}`, {
+        headers: { Authorization: "Bearer " + token }
+      });
+
+      if (!r.ok) throw new Error('Erro ao carregar músicas');
+      return await r.json();
+
+    }
+
+    function card(m) {
+      const el = document.createElement('div');
+      el.className = 'card bg-white rounded-lg overflow-hidden shadow hover:shadow-xl transition';
+      let tipoLabel = "";
+      let tipoCor = "";
+      const usage = m.metadata?.sc4m?.usage || "";
+      const trackType = m.type || "";
+
+      if (usage === "music-reuse" || trackType === "reuse") {
+        tipoLabel = "♻️ Reutilização";
+        tipoCor = "bg-emerald-600";
+      } else if (trackType === "mix" || usage === "music-mix") {
+        tipoLabel = "🎧 Mix Musical";
+        tipoCor = "bg-purple-600";
+      } else {
+        tipoLabel = "🎵 Original";
+        tipoCor = "bg-blue-600";
+      }
+
+      el.innerHTML = `
+    <div class="h-40 w-full overflow-hidden relative">
+      <img src="${API}/api/tracks/${m._id}/cover"
+           onerror="this.src='images/music-placeholder.jpg'"
+           class="h-40 w-full object-cover hover:scale-105 transition duration-300"
+           alt="${m.title}">
+      <span class="absolute top-2 left-2 text-xs px-2 py-1 rounded bg-black/60 text-white">
+        ${m.visibility === 'public' ? 'Pública' : 'Privada'}
+      </span>
+    </div>
+    <div class="p-4">
+      <h4 class="font-semibold text-slate-900 mb-1">${m.title}</h4>
+      <span class="inline-block text-xs px-2 py-1 ${tipoCor} text-white rounded">${tipoLabel}</span>
+
+
+      <h2 class="font-semibold text-slate-400 mb-2">${m.artist}</h2>
+      <!-- 🎵 Player principal -->
+      <audio controls class="w-full mb-3"></audio>
+
+      ${m.snippetId ? `
+        <p class="text-sm text-slate-500">Excerto adquirido:</p>
+        <audio controls class="w-full mb-2"></audio>
+        <a href="#" id="dl-${m.snippetId}" class="inline-block text-sm text-indigo-600 hover:underline">
+          ⬇️ Download Excerto
+        </a>
+      ` : ''}
+
+      <!-- 🔘 Botões -->
+      <div class="flex gap-2 flex-wrap">
+        <button class="px-3 py-1 rounded bg-slate-700 text-white hover:bg-slate-800 text-sm"
+                onclick="editTrack('${m._id}')">Editar</button>
+        <button
+  class="px-3 py-1 rounded bg-green-600 text-white hover:bg-green-700 text-sm"
+  onclick="downloadContract('${m._id}', '${m.type || 'original'}')">
+  Contrato
+</button>
+
+<button onclick="openDeleteModal('${m._id}')" 
+        class="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700">
+  Apagar
+</button>
+
+      </div>
+    </div>`;
+
+      const audioMain = el.querySelector("audio");
+      loadAudio(m._id, audioMain);
+
+      if (m.snippetId) {
+        const audioSnippet = el.querySelectorAll("audio")[1];
+        loadAudio(`snippet/${m.snippetId}`, audioSnippet);
+
+        const dlLink = el.querySelector(`#dl-${m.snippetId}`);
+        dlLink.addEventListener("click", async (e) => {
+          e.preventDefault();
+          const token = localStorage.getItem("authToken");
+          const res = await fetch(`${API}/api/tracks/snippet/${m.snippetId}`, {
+            headers: { Authorization: "Bearer " + token }
+          });
+          const blob = await res.blob();
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = "snippet.mp3";
+          a.click();
+        });
+      }
+
+      return el;
+    }
+
+    window.editTrack = (id) => {
+      window.location.href = `editar.html?id=${encodeURIComponent(id)}`;
+    };
+
+    async function render() {
+      const q = document.getElementById('q').value.trim().toLowerCase();
+      const visibility = document.getElementById('visibility').value;
+      const sort = document.getElementById('sort').value;
+      const list = await fetchMine({ q, visibility, sort });
+      const grid = document.getElementById('grid');
+      grid.innerHTML = '';
+      list.forEach(track => grid.appendChild(card(track)));
+      document.getElementById('empty').classList.toggle('hidden', list.length > 0);
+    }
+
+    function renderTracks(tracks) {
+      const originais = tracks.filter(t => t.type === "original");
+      const reusos = tracks.filter(t => t.type === "reuse");
+      const mixes = tracks.filter(t => t.type === "mix");
+
+      renderSection("originais-grid", originais);
+      renderSection("reusos-grid", reusos);
+      renderSection("mixes-grid", mixes);
+    }
+
+    window.downloadContract = async (id, type = "original") => {
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        alert("Por favor faz login novamente (token em falta).");
+        return;
+      }
+
+      const url =
+        type === "reuse"
+          ? `${API}/api/tracks/${id}/reuse/contract-pdf`
+          : type === "mix"
+            ? `${API}/api/mix/${id}/contract-pdf`
+            : `${API}/api/tracks/${id}/contract-pdf`;
+
+
+      try {
+        const response = await fetch(url, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (!response.ok) {
+          const err = await response.json();
+          alert("Erro: " + (err.error || "Falha ao descarregar contrato"));
+          return;
+        }
+
+        const blob = await response.blob();
+        const blobUrl = window.URL.createObjectURL(blob);
+
+        const a = document.createElement("a");
+        a.href = blobUrl;
+        a.download = `contrato-${id}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+
+        window.URL.revokeObjectURL(blobUrl);
+      } catch (error) {
+        console.error("Erro ao descarregar contrato:", error);
+        alert("Erro ao gerar contrato PDF");
+      }
+    };
+
+    let deleteId = null;
+
+    function openDeleteModal(id) {
+      deleteId = id;
+      document.getElementById("deleteModal").classList.remove("hidden");
+    }
+
+    document.getElementById("cancelDelete").addEventListener("click", () => {
+      document.getElementById("deleteModal").classList.add("hidden");
+      deleteId = null;
+    });
+
+    document.getElementById("confirmDelete").addEventListener("click", async () => {
+      if (deleteId) {
+        try {
+          const token = localStorage.getItem("authToken");
+          const res = await fetch(`${API}/api/tracks/${deleteId}`, {
+            method: "DELETE",
+            headers: { Authorization: "Bearer " + token }
+          });
+
+          if (res.ok) {
+            render();
+          } else {
+            alert("Erro ao apagar música.");
+          }
+        } catch (err) {
+          console.error(err);
+          alert("Erro na ligação ao servidor.");
+        }
+      }
+      document.getElementById("deleteModal").classList.add("hidden");
+    });
+
+    document.getElementById('filters').addEventListener('input', render);
+    render();
+  </script>
+</body>
+
+</html>
