@@ -1,9 +1,11 @@
 // controllers/mixController.js
-import Track from "../models/Track.js";
+import Track from "../models/Track";
 import { conn } from "../config/db.js";
 import { uploadToGridFS } from "../utils/gridfs.js";
 import { ethers } from "ethers";
 import fs from "fs";
+import { measureTransaction } from "../utils/measureTransaction.js";
+
 
 import MusicMixArtifact from "../blockchain/artifacts/contracts/MusicMix.sol/MusicMix.json" assert { type: "json" };
 
@@ -23,8 +25,10 @@ export const exportMix = async (req, res) => {
       wallet
     );
 
-    const contract = await factory.deploy(title, userId);
-    await contract.waitForDeployment();
+    const contract = await measureTransaction(
+      factory.deploy(title, userId),
+      "deployMusicMix"
+    );
 
     const contractAddress = contract.target;
     console.log("MusicMix deployado com sucesso:", contractAddress);

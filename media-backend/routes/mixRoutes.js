@@ -9,9 +9,10 @@ const path = require("path");
 const PDFDocument = require("pdfkit");
 const QRCode = require("qrcode");
 const { ethers } = require("ethers");
-const Track = require("../models/track.js");
+const Track = require("../models/Track.js");
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 50 * 1024 * 1024 } });
+const { measureTransaction } = require("../utils/measureTransaction.js");
 
 router.post("/export", requireAuth, upload.single("file"), async (req, res) => {
     try {
@@ -130,6 +131,10 @@ router.post("/export", requireAuth, upload.single("file"), async (req, res) => {
                             valueShare: s.valueEth || 0
                         }))
                     });
+
+                    if (deployResult && deployResult.tx) {
+                        await measureTransaction(deployResult.tx, "deployMusicMix");
+                    }
 
                     if (deployResult.success) {
                         console.log(`Contrato MusicMix criado: ${deployResult.address}`);

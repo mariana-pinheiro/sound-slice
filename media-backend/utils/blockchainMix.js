@@ -42,6 +42,7 @@ async function deployMusicMixContract(params) {
       sources
     );
 
+    const tx = await contract.deploymentTransaction();
     await contract.waitForDeployment();
     const address = await contract.getAddress();
     const txHash = contract.deploymentTransaction().hash;
@@ -51,6 +52,7 @@ async function deployMusicMixContract(params) {
     return {
       success: true,
       address,
+      tx,
       txHash,
       chainId: (await provider.getNetwork()).chainId,
     };

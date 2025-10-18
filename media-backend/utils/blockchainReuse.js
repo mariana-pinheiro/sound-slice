@@ -2,6 +2,8 @@
 const { ethers } = require("ethers");
 const fs = require("fs");
 const path = require("path");
+const { measureTransaction } = require("./measureTransaction");
+
 
 async function deployMusicReuseContract(params) {
   try {
@@ -40,7 +42,7 @@ async function deployMusicReuseContract(params) {
         ? ethers.parseEther(params.valueEth.toString())
         : ethers.parseEther("0.001");
 
-    const contract = await factory.deploy({
+    const contract = await measureTransaction(factory.deploy({
       reuseId: params.reuseId || "unknown",
       originalId: params.originalId || "unknown",
       originalTitle: params.originalTitle || "Untitled",
@@ -55,7 +57,9 @@ async function deployMusicReuseContract(params) {
       format: params.format || "mp3",
       genre: params.genre || "unknown",
       snippetDuration: BigInt(params.snippetDuration || 0),
-    });
+    }),
+      "deployMusicReuse"
+    );
 
     await contract.waitForDeployment();
 

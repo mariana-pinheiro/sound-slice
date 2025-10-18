@@ -831,7 +831,7 @@ router.get("/:id/reuse/contract-pdf", requireAuth, async (req, res) => {
         doc.fillColor(white).font("Helvetica-Bold").fontSize(18).text(originalTitle || track.title, 0, 220, { align: "center" });
 
         // === Dados da Música ===
-        doc.moveDown(2).font("Helvetica-Bold").fontSize(14).fillColor(white).text("🎵 Dados da Música", 40);
+        doc.moveDown(2).font("Helvetica-Bold").fontSize(14).fillColor(white).text("Dados da Música", 40);
         doc.moveDown(0.5);
         doc.font("Helvetica").fontSize(11).list([
             `Título Original: ${originalTitle || "N/A"}`,
@@ -847,7 +847,7 @@ router.get("/:id/reuse/contract-pdf", requireAuth, async (req, res) => {
 
         // === Dados do Contrato ===
         doc.moveDown(1);
-        doc.font("Helvetica-Bold").fontSize(14).fillColor(white).text("📜 Dados do Contrato", 40);
+        doc.font("Helvetica-Bold").fontSize(14).fillColor(white).text("Dados do Contrato", 40);
         doc.moveDown(0.5);
         doc.font("Helvetica").fontSize(11).list([
             `Endereço do Contrato: ${reuseAddress}`,

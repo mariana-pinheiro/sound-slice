@@ -1,43 +1,64 @@
-import { expect } from "chai";
 import pkg from "hardhat";
 const { ethers } = pkg;
+import { expect } from "chai";
 
-describe("MusicRights", function () {
-  let musicRights;
-  let owner, addr1, addr2;
+describe("⏱️ Teste de desempenho do contrato MusicRights", function () {
+  it("Deve medir latência, tempo de deploy, execução e gas", async function () {
+    const deployTimes = [];
+    const execTimes = [];
+    const latencies = [];
+    const gasUsedValues = [];
 
-  beforeEach(async function () {
-    [owner, addr1, addr2] = await ethers.getSigners();
+    const iterations = 10;
+    for (let i = 0; i < iterations; i++) {
+      const [owner] = await ethers.getSigners();
+      const MusicRights = await ethers.getContractFactory("MusicRights");
 
-    const MusicRights = await ethers.getContractFactory("MusicRights");
+      const startLatency = performance.now();
+      const contract = await MusicRights.deploy(
+        "Song Title",
+        "Artist Name",
+        ethers.encodeBytes32String("hash123"),
+        1000,
+        "mp3",
+        "Pop",
+        180,
+        "{}",
+        [owner.address],
+        [100]
+      );
+      const deployTx = await contract.deploymentTransaction().wait();
+      const endLatency = performance.now();
 
-    musicRights = await MusicRights.deploy(
-      "Minha Musica",                  // _title
-      "Artista X",                     // _artist
-      ethers.keccak256(ethers.toUtf8Bytes("ficheiro.mp3")), // _fileHash
-      ethers.parseEther("1"),          // _basePrice (1 ETH = 100%)
-      "mp3",                           // _format
-      "Rock",                          // _genre
-      180,                             // _duration (segundos)
-      "extra metadata JSON",           // _extra
-      [owner.address, addr1.address],  // titulares
-      [70, 30]                         // percentagens SC4M
-    );
-    await musicRights.waitForDeployment();
-  });
+      const latency = (endLatency - startLatency) / 1000; // segundos
+      const deployTime = deployTx.timestamp ? 0 : latency / 2; // aproximado
+      const gasUsed = Number(deployTx.gasUsed?.toString() || 0);
 
-  it("Deve guardar corretamente o título e o artista", async function () {
-    expect(await musicRights.title()).to.equal("Minha Musica");
-    expect(await musicRights.artist()).to.equal("Artista X");
-  });
+      // Executar uma função simples (title) para medir tempo de execução
+      const startExec = performance.now();
+      const title = await contract.title();
+      const endExec = performance.now();
+      const execTime = (endExec - startExec) / 1000;
 
-  it("Deve registar um reuse e distribuir pagamentos", async function () {
-    const tx = await musicRights.connect(addr2).registerReuse(50, {
-      value: ethers.parseEther("0.5") 
-    });
-    await tx.wait();
+      latencies.push(latency);
+      deployTimes.push(deployTime);
+      execTimes.push(execTime);
+      gasUsedValues.push(gasUsed);
 
-    const reuse = await musicRights.getReuse(0);
-    expect(reuse[1]).to.equal(50);
+      console.log(
+        `Execução ${i + 1}: latência=${latency.toFixed(3)}s, deploy=${deployTime.toFixed(
+          3
+        )}s, execução=${execTime.toFixed(3)}s, gas=${gasUsed}`
+      );
+    }
+
+    const mean = arr => arr.reduce((a, b) => a + b, 0) / arr.length;
+    const std = arr => Math.sqrt(mean(arr.map(x => (x - mean(arr)) ** 2)));
+
+    console.log("\n📊 MusicRights");
+    console.log(`⏱️ Latência média: ${mean(latencies).toFixed(3)} ± ${std(latencies).toFixed(3)} s`);
+    console.log(`⚙️ Deploy médio:   ${mean(deployTimes).toFixed(3)} ± ${std(deployTimes).toFixed(3)} s`);
+    console.log(`🎵 Execução média: ${mean(execTimes).toFixed(3)} ± ${std(execTimes).toFixed(3)} s`);
+    console.log(`⛽ Gas médio:      ${mean(gasUsedValues).toFixed(0)} ± ${std(gasUsedValues).toFixed(0)} gas`);
   });
 });

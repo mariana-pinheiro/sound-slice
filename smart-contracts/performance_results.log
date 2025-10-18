@@ -1,0 +1,24 @@
+{"contract":"MusicMix","deployTime":0.034,"execTime":0.006,"gasUsed":"762647","timestamp":"2025-10-13T22:09:59.047Z"}
+{"contract":"MusicMix","deployTime":0.039,"execTime":0.007,"gasUsed":"762647","timestamp":"2025-10-13T22:13:52.096Z"}
+{"contract":"MusicMix","deployTime":0.033,"execTime":0.008,"gasUsed":"762647","timestamp":"2025-10-13T22:13:59.850Z"}
+{"contract":"MusicMix","deployTime":0.027,"execTime":0.005,"gasUsed":"762647","timestamp":"2025-10-13T22:14:07.533Z"}
+{"contract":"MusicMix","deployTime":0.029,"execTime":0.007,"gasUsed":"762647","timestamp":"2025-10-13T22:14:12.967Z"}
+{"contract":"MusicMix","deployTime":0.035,"execTime":0.007,"gasUsed":"762647","timestamp":"2025-10-13T22:14:19.116Z"}
+{"contract":"MusicMix","deployTime":0.03,"execTime":0.008,"gasUsed":"762647","timestamp":"2025-10-13T22:14:25.049Z"}
+{"contract":"MusicMix","deployTime":0.032,"execTime":0.006,"gasUsed":"762647","timestamp":"2025-10-13T22:14:30.908Z"}
+{"contract":"MusicMix","deployTime":0.027,"execTime":0.007,"gasUsed":"762647","timestamp":"2025-10-13T22:14:36.313Z"}
+{"contract":"MusicMix","deployTime":0.035,"execTime":0.007,"gasUsed":"762647","timestamp":"2025-10-13T22:14:43.999Z"}
+{"contract":"MusicReuse","deployTime":0.04721679999999924,"execTime":0.00478229999999985,"gasUsed":"925176","timestamp":"2025-10-13T23:17:06.816Z"}
+{"contract":"MusicReuse","deployTime":0.05460440000000017,"execTime":0.0056003000000000615,"gasUsed":"925176","timestamp":"2025-10-13T23:17:44.663Z"}
+{"contract":"MusicReuse","deployTime":0.046559299999999894,"execTime":0.005186899999999696,"gasUsed":"925176","timestamp":"2025-10-13T23:17:50.255Z"}
+{"contract":"MusicReuse","deployTime":0.04492480000000023,"execTime":0.005469299999999748,"gasUsed":"925176","timestamp":"2025-10-13T23:17:55.592Z"}
+{"contract":"MusicReuse","deployTime":0.053137100000000374,"execTime":0.0067285999999999145,"gasUsed":"925176","timestamp":"2025-10-13T23:18:01.562Z"}
+{"contract":"MusicReuse","deployTime":0.05674009999999998,"execTime":0.008437699999999949,"gasUsed":"925176","timestamp":"2025-10-13T23:18:08.413Z"}
+{"contract":"MusicReuse","deployTime":0.047451900000000026,"execTime":0.005724899999999707,"gasUsed":"925176","timestamp":"2025-10-13T23:18:13.927Z"}
+{"contract":"MusicReuse","deployTime":0.07565049999999973,"execTime":0.009602100000000065,"gasUsed":"925176","timestamp":"2025-10-13T23:18:19.739Z"}
+{"contract":"MusicReuse","deployTime":0.045266900000000075,"execTime":0.006491299999999683,"gasUsed":"925176","timestamp":"2025-10-13T23:18:26.467Z"}
+{"contract":"MusicReuse","deployTime":0.04345560000000023,"execTime":0.0055489000000002306,"gasUsed":"925176","timestamp":"2025-10-13T23:18:38.160Z"}
+
+📊 MusicRights
+⏱️ Deploy médio: 0.012 ± 0.006 s
+⛽ Gas médio: 1008860 ± 0 gas
